@@ -1,0 +1,41 @@
+spring:
+  jpa:
+    show-sql: true
+    open-in-view: false
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 20
+        jdbc.batch_size: 20
+  datasource:
+    # InMemory
+    url: jdbc:h2:mem:restaurantvoting
+    username: sa
+    password:
+
+  # Jackson Serialization Issue Resolver
+  jackson:
+    visibility:
+      field: any
+      getter: none
+      setter: none
+      is-getter: none
+
+  cache:
+    cache-names: users
+    caffeine.spec: maximumSize=1,expireAfterAccess=60s
+
+logging:
+  level:
+    root: WARN
+    kz.pichugin.restaurantvotingsystem: DEBUG
+    org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver: DEBUG
+
+server.servlet:
+  encoding:
+    charset: UTF-8
+    enabled: true
+    force: true

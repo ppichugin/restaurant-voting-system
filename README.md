@@ -25,14 +25,20 @@ The task is:
 
 ---
 
-### Technologies used:
-* Spring Boot 2.7
+### Technology stack:
+* Spring Boot 2.6.9
 * JDK 17
-* H2 DB
+* H2 DB in memory
 * Lombok
 * Caffeine Cache
+* Open API v.3
 * Swagger UI
-* Open API
 
 ---
-Swagger UI: http://localhost:8080/swagger-ui/index.html
+Swagger UI accessible by the following link: 
+http://localhost:8080/swagger-ui/index.html
+
+---
+
+Application credentials for testing purposes:
+
