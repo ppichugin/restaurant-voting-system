@@ -59,7 +59,8 @@ public class User extends NamedEntity implements HasIdAndEmail, Serializable {
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "role"}, name = "uk_user_roles"))
+            uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "role"},
+                    name = "uk_user_roles"))
     @Column(name = "role")
     @ElementCollection(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id") //https://stackoverflow.com/a/62848296/548473
