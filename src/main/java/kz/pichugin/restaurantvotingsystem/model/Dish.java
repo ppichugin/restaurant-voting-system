@@ -41,7 +41,7 @@ public class Dish extends NamedEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ToString.Exclude
     @JsonIgnore
-    Restaurant restaurant;
+    private Restaurant restaurant;
 
     public Dish(String name, Double price) {
         super(null, name);
