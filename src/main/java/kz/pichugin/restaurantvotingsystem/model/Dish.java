@@ -21,7 +21,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "dish", uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "add_date", "restaurant_id"},
-        name = "dish_unique_restaurant_name_idx")})
+        name = "uk_dish")})
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

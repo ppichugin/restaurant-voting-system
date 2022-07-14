@@ -25,7 +25,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = {"email"}, name = "uk_email"))
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

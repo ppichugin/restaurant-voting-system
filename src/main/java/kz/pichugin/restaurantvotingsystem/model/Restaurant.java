@@ -20,8 +20,7 @@ import javax.persistence.UniqueConstraint;
 import java.util.Set;
 
 @Entity
-@Table(name = "restaurant", uniqueConstraints = @UniqueConstraint(columnNames = {"name"},
-        name = "restaurant_unique_name_idx"))
+@Table(name = "restaurant", uniqueConstraints = @UniqueConstraint(columnNames = {"name"}, name = "uk_restaurant"))
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
