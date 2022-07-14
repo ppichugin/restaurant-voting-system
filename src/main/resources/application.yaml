@@ -33,6 +33,7 @@ logging:
     root: WARN
     kz.pichugin.restaurantvotingsystem: DEBUG
     org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver: DEBUG
+    org.springframework.security.web.FilterChainProxy: DEBUG
 
 server.servlet:
   encoding:
