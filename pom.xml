@@ -21,10 +21,10 @@
         <java.version>17</java.version>
         <springdoc.version>1.6.9</springdoc.version>
         <org.jsoup.versions>1.15.1</org.jsoup.versions>
-<!--        <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <h2database.version>2.1.214</h2database.version>
+        <lombok.version>1.18.24</lombok.version>
     </properties>
 
     <dependencies>
@@ -83,11 +83,15 @@
             <artifactId>h2</artifactId>
             <version>${h2database.version}</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
         </dependency>
+
 
         <!--https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.4-Release-Notes#junit-5s-vintage-engine-removed-from-spring-boot-starter-test-->
         <dependency>
