@@ -14,24 +14,24 @@ CREATE TABLE users
     email      VARCHAR(255)            NOT NULL,
     password   VARCHAR(255)            NOT NULL,
     registered TIMESTAMP DEFAULT NOW() NOT NULL,
-    enabled    BOOLEAN   DEFAULT TRUE  NOT NULL
+    enabled    BOOLEAN   DEFAULT TRUE  NOT NULL,
+    CONSTRAINT uk_email UNIQUE (email)
 );
-CREATE UNIQUE INDEX users_unique_email_idx ON users (email);
 
 CREATE TABLE user_roles
 (
     user_id INTEGER NOT NULL,
     role    VARCHAR(255),
---     CONSTRAINT user_roles_idx UNIQUE (user_id, role),
-    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+    CONSTRAINT uk_user_roles UNIQUE (user_id, role),
+    CONSTRAINT fk_user_role FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 CREATE TABLE restaurant
 (
     id   INTEGER DEFAULT NEXTVAL('global_seq') PRIMARY KEY,
-    name VARCHAR(255) NOT NULL
+    name VARCHAR(255) NOT NULL,
+    CONSTRAINT uk_restaurant UNIQUE (name)
 );
-CREATE UNIQUE INDEX restaurant_unique_name_idx ON restaurant (name);
 
 CREATE TABLE vote
 (
@@ -39,10 +39,10 @@ CREATE TABLE vote
     vote_date     TIMESTAMP NOT NULL,
     user_id       INTEGER   NOT NULL,
     restaurant_id INTEGER   NOT NULL,
-    FOREIGN KEY (restaurant_id) REFERENCES restaurant (id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+    CONSTRAINT uk_vote UNIQUE (user_id, vote_date),
+    CONSTRAINT fk_vote_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT fk_vote_restaurant FOREIGN KEY (restaurant_id) REFERENCES restaurant (id) ON DELETE CASCADE
 );
-CREATE UNIQUE INDEX vote_unique_vote_idx ON vote (user_id, vote_date);
 
 CREATE TABLE dish
 (
@@ -51,6 +51,6 @@ CREATE TABLE dish
     price         DOUBLE PRECISION      NOT NULL,
     restaurant_id INTEGER               NOT NULL,
     add_date      DATE    DEFAULT NOW() NOT NULL,
-    FOREIGN KEY (restaurant_id) REFERENCES restaurant (id) ON DELETE CASCADE
+    CONSTRAINT uk_dish UNIQUE (name, restaurant_id, add_date),
+    CONSTRAINT fk_dish FOREIGN KEY (restaurant_id) REFERENCES restaurant (id) ON DELETE CASCADE
 );
-CREATE UNIQUE INDEX dish_unique_restaurant_name_idx ON dish (name, add_date, restaurant_id);
