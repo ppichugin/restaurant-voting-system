@@ -28,12 +28,17 @@ spring:
     cache-names: users
     caffeine.spec: maximumSize=1,expireAfterAccess=60s
 
+  mvc:
+    format:
+      date: iso
+
 logging:
   level:
     root: WARN
     kz.pichugin.restaurantvotingsystem: DEBUG
     org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver: DEBUG
     org.springframework.security.web.FilterChainProxy: DEBUG
+    org.springframework.cache: TRACE
 
 server.servlet:
   encoding:
