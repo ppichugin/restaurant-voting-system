@@ -26,16 +26,16 @@ The task is:
 ---
 
 ### Technology stack:
-* Spring Boot 2.6.9
-* JDK 17
-* H2 DB in memory
+* Spring Boot v2.6.9, Spring v5.3.21
+* JDK 17.0.3
+* H2 DB v2.1.214 (in memory)
 * Lombok
 * Caffeine Cache
 * Open API v.3
 * Swagger UI
 
 ---
-Swagger UI accessible by the following link: 
+Swagger UI is accessible by the following link: 
 http://localhost:8080/swagger-ui/index.html
 
 ---
