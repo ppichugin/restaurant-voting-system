@@ -40,6 +40,13 @@ public class Dish extends NamedEntity {
     @ToString.Exclude
     private Restaurant restaurant;
 
+    public Dish(Dish dish) {
+        super(dish.getId(), dish.getName());
+        this.price = dish.getPrice();
+        this.addDate = dish.getAddDate();
+        this.restaurant = dish.getRestaurant();
+    }
+
     public Dish(String name, Double price) {
         super(null, name);
         this.price = price;
