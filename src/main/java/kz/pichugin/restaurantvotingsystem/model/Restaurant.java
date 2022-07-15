@@ -29,17 +29,11 @@ public class Restaurant extends NamedEntity {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "restaurant")
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    @OrderBy("added DESC")
+    @OrderBy("addDate DESC")
     @ToString.Exclude
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private Set<Dish> menu;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "selectedRestaurant")
-    @ToString.Exclude
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore
-    private Set<Vote> votes;
 
     public Restaurant(Integer id, String name) {
         super(id, name);
