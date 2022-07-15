@@ -33,23 +33,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     // https://stackoverflow.com/a/70176629/19127801
     @Bean
     @Override
+    // https://stackoverflow.com/a/70176629/548473
     public UserDetailsService userDetailsServiceBean() throws Exception {
         return super.userDetailsServiceBean();
     }
 
-    @Override
-    public UserDetailsService userDetailsService() {
-        return email -> {
-            log.debug("Authenticating '{}'", email);
-            Optional<User> optionalUser = userRepository.getByEmail(email);
-            return new AuthUser(optionalUser.orElseThrow(
-                    () -> new UsernameNotFoundException("User '" + email + "' was not found")));
-        };
-    }
-
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService())
+        auth.userDetailsService(
+                        email -> {
+                            log.debug("Authenticating '{}'", email);
+                            Optional<User> optionalUser = userRepository.getByEmail(email.toLowerCase());
+                            return new AuthUser(optionalUser.orElseThrow(
+                                    () -> new UsernameNotFoundException("User '" + email + "' was not found")));
+                        })
                 .passwordEncoder(PASSWORD_ENCODER);
     }
 
@@ -59,6 +56,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/admin/**").hasRole(Role.ADMIN.name())
                 .antMatchers(HttpMethod.POST, "/api/profile").anonymous()
                 .antMatchers("/api/**").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/restaurants/**").permitAll()
                 .and().httpBasic()
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().csrf().disable();

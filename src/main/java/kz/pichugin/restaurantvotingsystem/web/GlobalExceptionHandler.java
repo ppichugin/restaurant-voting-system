@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -28,7 +30,16 @@ import static org.springframework.boot.web.error.ErrorAttributeOptions.Include.M
 @AllArgsConstructor
 @Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+    private static final Map<String, String> CONSTRAINS = new HashMap<>();
+
     public static final String EXCEPTION_DUPLICATE_EMAIL = "User with this email already exists";
+    public static final String EXCEPTION_DUPLICATE_DISH = "The dish in this restaurant already exists";
+    public static final String EXCEPTION_DUPLICATE_RESTAURANT = "The restaurant already exists";
+
+    static {
+        CONSTRAINS.put("uk_dish", EXCEPTION_DUPLICATE_DISH);
+        CONSTRAINS.put("uk_restaurant", EXCEPTION_DUPLICATE_RESTAURANT);
+    }
 
     private final ErrorAttributes errorAttributes;
 
@@ -57,6 +68,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<?> persistException(WebRequest request, EntityNotFoundException ex) {
         log.error("EntityNotFoundException: {}", ex.getMessage());
         return createResponseEntity(getDefaultBody(request, ErrorAttributeOptions.of(MESSAGE), null), HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<?> conflict(WebRequest request, DataIntegrityViolationException ex) {
+        log.error("DataIntegrityViolationException: {}", ex.getMessage());
+        String rootMsg = ValidationUtil.getRootCause(ex).getMessage();
+        if (rootMsg != null) {
+            String errorMessage = rootMsg.toLowerCase();
+            for (Map.Entry<String, String> entry : CONSTRAINS.entrySet()) {
+                if (errorMessage.contains(entry.getKey())) {
+                    return createResponseEntity(getDefaultBody(request, ErrorAttributeOptions.of(MESSAGE), entry.getValue()), HttpStatus.UNPROCESSABLE_ENTITY);
+                }
+            }
+        }
+        return createResponseEntity(getDefaultBody(request, ErrorAttributeOptions.of(MESSAGE), null), HttpStatus.CONFLICT);
     }
 
     private ResponseEntity<Object> handleBindingErrors(BindingResult result, WebRequest request) {

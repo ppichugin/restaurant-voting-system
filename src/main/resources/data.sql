@@ -55,9 +55,14 @@ VALUES ('Coffee', 3.1, 100005),
        ('Rothaus Tannen Zapfle', 5.2, 100010),
        ('Rothaus Zapfle', 5.5, 100010);
 
-INSERT INTO VOTE (user_id, restaurant_id, vote_date)
-VALUES (100000, 100010, current_date - 1),
-       (100001, 100005, current_date),
-       (100002, 100005, current_date),
-       (100003, 100009, current_date - 2),
-       (100004, 100006, current_date);
+INSERT INTO dish (name, price, restaurant_id, add_date)
+VALUES ('Sushi Yamato', 3.1, 100010, CURRENT_DATE - 1),
+       ('Tea with ice', 5.0, 100010, CURRENT_DATE - 1),
+       ('Waffles with cream', 2.3, 100010, CURRENT_DATE - 1);
+
+INSERT INTO vote (user_id, restaurant_id, vote_date)
+VALUES (100000, 100010, CURRENT_DATE - 1),
+       (100001, 100005, CURRENT_DATE),
+       (100002, 100005, CURRENT_DATE),
+       (100003, 100009, CURRENT_DATE - 2),
+       (100004, 100006, CURRENT_DATE);

@@ -17,7 +17,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "restaurant", uniqueConstraints = @UniqueConstraint(columnNames = {"name"}, name = "uk_restaurant"))
@@ -33,9 +33,14 @@ public class Restaurant extends NamedEntity {
     @ToString.Exclude
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
-    private Set<Dish> menu;
+    private List<Dish> menu;
 
     public Restaurant(Integer id, String name) {
         super(id, name);
+    }
+
+    public Restaurant(Restaurant rt) {
+        super(rt.getId(), rt.getName());
+        menu = rt.getMenu();
     }
 }
