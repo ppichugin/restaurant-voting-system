@@ -42,3 +42,41 @@ http://localhost:8080/swagger-ui/index.html
 
 Application credentials for testing purposes:
 
+User:
+* Login: `user1@yandex.ru`  Password: `password`
+
+Admin:
+* Login: `admin@gmail.com`  Password: `admin`
+
+---
+### cURLs for testing purposes:
+
+- Get all restaurants with menu:
+```console
+curl -H "Content-Type: application/json" -X GET http://localhost:8080/api/restaurants/with-menu
+```
+
+- Get restaurant {id=100005} with menu:
+```console
+curl -H "Content-Type: application/json" -X GET http://localhost:8080/api/restaurants/100005/with-menu
+```
+
+- Get all restaurants by Admin:
+```console
+curl -H "Content-Type: application/json" -v --user admin@gmail.com:admin http://localhost:8080/api/admin/restaurants
+```
+
+- Get all users by Admin:
+```console
+curl -H "Content-Type: application/json" -v --user admin@gmail.com:admin http://localhost:8080/api/admin/users
+```
+
+- Get user {id=100000} by Admin:
+```console
+curl -H "Content-Type: application/json" -v --user admin@gmail.com:admin http://localhost:8080/api/admin/users/100000
+```
+
+- Get profile of the logged-in user:
+```console
+curl -H "Content-Type: application/json" -v --user admin@gmail.com:admin -X GET http://localhost:8080/api/profile
+```
