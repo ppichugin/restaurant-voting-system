@@ -3,14 +3,14 @@ package kz.pichugin.restaurantvotingsystem.util;
 import kz.pichugin.restaurantvotingsystem.model.Dish;
 import kz.pichugin.restaurantvotingsystem.to.BaseTo;
 import kz.pichugin.restaurantvotingsystem.to.DishTo;
+import lombok.experimental.UtilityClass;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+@UtilityClass
 public final class DishUtil {
-    private DishUtil() {
-    }
 
     public static Dish getDish(DishTo dishTo) {
         return new Dish(dishTo.getId(), dishTo.getName(), dishTo.getPrice());

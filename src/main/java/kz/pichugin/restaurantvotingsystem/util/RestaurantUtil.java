@@ -4,6 +4,7 @@ import kz.pichugin.restaurantvotingsystem.model.Dish;
 import kz.pichugin.restaurantvotingsystem.model.Restaurant;
 import kz.pichugin.restaurantvotingsystem.to.NamedTo;
 import kz.pichugin.restaurantvotingsystem.to.RestaurantTo;
+import lombok.experimental.UtilityClass;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,9 +13,8 @@ import java.util.List;
 
 import static kz.pichugin.restaurantvotingsystem.util.DishUtil.getDishTos;
 
+@UtilityClass
 public final class RestaurantUtil {
-    private RestaurantUtil() {
-    }
 
     public static RestaurantTo getRestaurantTo(Restaurant rt) {
         return new RestaurantTo(rt.getId(), rt.getName(), getDishTos(rt.getMenu()));
