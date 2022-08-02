@@ -18,6 +18,7 @@ public class UserTestData {
     public static final int NOT_FOUND = START_SEQ - 1;
     public static final String USER_MAIL = "user1@yandex.ru";
     public static final String ADMIN_MAIL = "admin@gmail.com";
+    public static final String USER2_MAIL = "user2@yandex.ru";
 
     public static final User user1 = new User(USER_ID, "User1", USER_MAIL, "password", Role.USER);
     public static final User admin = new User(ADMIN_ID, "Admin", ADMIN_MAIL, "admin", Role.ADMIN, Role.USER);
@@ -33,7 +34,7 @@ public class UserTestData {
         return new User(USER_ID, "UpdatedName", USER_MAIL, "newPass", false, new Date(), Collections.singleton(Role.ADMIN));
     }
 
-    public static String jsonWithPassword(User user, String passw) {
-        return JsonUtil.writeAdditionProps(user, "password", passw);
+    public static String jsonWithPassword(User user, String password) {
+        return JsonUtil.writeAdditionProps(user, "password", password);
     }
 }

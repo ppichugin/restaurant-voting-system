@@ -19,7 +19,7 @@ public class DishTestData {
     public static final MatcherFactory.Matcher<DishTo> DISH_TO_MATCHER
             = MatcherFactory.usingEqualsComparator(DishTo.class);
 
-    public static final int DISH_START_ID = START_SEQ + 11;
+    public static final int DISH_START_ID = START_SEQ + 12;
 
     public static final Dish bavariusDish1 = new Dish(DISH_START_ID, "Coffee", 3.1, null, LocalDate.now());
     public static final Dish bavariusDish2 = new Dish(DISH_START_ID + 1, "Croissant", 4.3, null, LocalDate.now());

@@ -22,13 +22,14 @@ import java.util.List;
 
 import static kz.pichugin.restaurantvotingsystem.web.restaurant.RestaurantTestData.*;
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WithUserDetails(value = UserTestData.ADMIN_MAIL)
 class AdminRestaurantControllerTest extends AbstractControllerTest {
-
     private static final String REST_URL = AdminRestaurantController.REST_URL + '/';
 
     @Autowired
@@ -36,8 +37,7 @@ class AdminRestaurantControllerTest extends AbstractControllerTest {
 
     @Test
     void get() throws Exception {
-        perform(MockMvcRequestBuilders
-                .get(REST_URL + CITYBREW_ID))
+        perform(MockMvcRequestBuilders.get(REST_URL + CITYBREW_ID))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -46,48 +46,72 @@ class AdminRestaurantControllerTest extends AbstractControllerTest {
 
     @Test
     void getNotFound() throws Exception {
-        perform(MockMvcRequestBuilders
-                .get(REST_URL + NOT_FOUND))
+        perform(MockMvcRequestBuilders.get(REST_URL + NOT_FOUND))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    @WithUserDetails(value = UserTestData.USER_MAIL)
+    void getForbidden() throws Exception {
+        perform(MockMvcRequestBuilders.get(REST_URL + CITYBREW_ID))
+                .andDo(print())
+                .andExpect(status().isForbidden());
     }
 
     @Test
     void getAll() throws Exception {
-        List<Restaurant> restaurants = new ArrayList<>(List.of(bavarius, citybrew, mokito, filadelphia, roofToHeaven, yamato));
+        List<Restaurant> restaurants = new ArrayList<>(
+                List.of(bavarius, citybrew, mokito, filadelphia, roofToHeaven, yamato, dummyWithoutMenu));
         restaurants.sort(Comparator.comparing(NamedEntity::getName));
-        perform(MockMvcRequestBuilders
-                .get(REST_URL))
+        assertTrue(restaurantRepository.findById(DUMMY_ID).isPresent(), "Dummy found");
+        perform(MockMvcRequestBuilders.get(REST_URL))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(REST_MATCHER.contentJson(
-                        restaurants));
+                .andExpect(REST_MATCHER.contentJson(restaurants));
     }
 
     @Test
-    void delete() throws Exception {
-        perform(MockMvcRequestBuilders
-                .delete(REST_URL + ROOFTOHEAVEN_ID))
+    void deleteWithoutMenu() throws Exception {
+        perform(MockMvcRequestBuilders.delete(REST_URL + DUMMY_ID))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+        int deletedRows = restaurantRepository.delete(DUMMY_ID);
+        assertEquals(0, deletedRows);
+    }
+
+    @Test
+    void deleteWithMenu() throws Exception {
+        perform(MockMvcRequestBuilders.delete(REST_URL + BAVARIUS_ID))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
+        assertTrue(restaurantRepository.findById(BAVARIUS_ID).isPresent());
     }
 
     @Test
     void deleteNotFound() throws Exception {
-        perform(MockMvcRequestBuilders
-                .delete(REST_URL + NOT_FOUND))
+        perform(MockMvcRequestBuilders.delete(REST_URL + NOT_FOUND))
                 .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
-    void createWithLocation() throws Exception {
+    @WithUserDetails(value = UserTestData.USER_MAIL)
+    void deleteForbidden() throws Exception {
+        perform(MockMvcRequestBuilders.delete(REST_URL + BAVARIUS_ID))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+        assertTrue(restaurantRepository.findById(BAVARIUS_ID).isPresent());
+    }
+
+    @Test
+    void create() throws Exception {
         Restaurant newRestaurant = getNew();
-        ResultActions action = perform(MockMvcRequestBuilders
-                .post(REST_URL)
+        ResultActions action = perform(MockMvcRequestBuilders.post(REST_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(newRestaurant)))
                 .andDo(print())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
         Restaurant created = REST_MATCHER.readFromJson(action);
         int newId = created.id();
@@ -99,8 +123,7 @@ class AdminRestaurantControllerTest extends AbstractControllerTest {
     @Test
     void update() throws Exception {
         Restaurant updated = getUpdated();
-        perform(MockMvcRequestBuilders
-                .put(REST_URL + YAMATO_ID)
+        perform(MockMvcRequestBuilders.put(REST_URL + YAMATO_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(updated)))
                 .andDo(print())
@@ -111,8 +134,7 @@ class AdminRestaurantControllerTest extends AbstractControllerTest {
     @Test
     void createInvalid() throws Exception {
         Restaurant invalid = new Restaurant(null, null);
-        perform(MockMvcRequestBuilders
-                .post(REST_URL)
+        perform(MockMvcRequestBuilders.post(REST_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(invalid)))
                 .andDo(print())
@@ -138,6 +160,7 @@ class AdminRestaurantControllerTest extends AbstractControllerTest {
                 .content(JsonUtil.writeValue(invalid)))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string(
                         containsString(GlobalExceptionHandler.EXCEPTION_DUPLICATE_RESTAURANT)));
     }
@@ -151,6 +174,7 @@ class AdminRestaurantControllerTest extends AbstractControllerTest {
                 .content(JsonUtil.writeValue(invalidDuplicate)))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string(
                         containsString(GlobalExceptionHandler.EXCEPTION_DUPLICATE_RESTAURANT)));
     }

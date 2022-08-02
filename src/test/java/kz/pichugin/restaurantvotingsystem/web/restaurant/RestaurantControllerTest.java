@@ -5,6 +5,7 @@ import kz.pichugin.restaurantvotingsystem.web.AbstractControllerTest;
 import kz.pichugin.restaurantvotingsystem.web.user.UserTestData;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -45,5 +46,18 @@ class RestaurantControllerTest extends AbstractControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(REST_TO_MATCHER.contentJson(RestaurantUtil.getRestaurantTos(
                         List.of(bavarius, citybrew, mokito, filadelphia, roofToHeaven, yamato))));
+    }
+
+    @Test
+    void getNotFound() throws Exception {
+        perform(MockMvcRequestBuilders.get(REST_URL + NOT_FOUND + "/with-menu"))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void getUnauthorized() throws Exception {
+        perform(MockMvcRequestBuilders.get(REST_URL + BAVARIUS_ID + "/with-menu"))
+                .andExpect(status().isUnauthorized());
     }
 }

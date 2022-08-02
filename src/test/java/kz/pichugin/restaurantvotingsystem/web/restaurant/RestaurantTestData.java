@@ -18,6 +18,8 @@ public class RestaurantTestData {
     public static final int FILADELPHIA_ID = START_SEQ + 8;
     public static final int ROOFTOHEAVEN_ID = START_SEQ + 9;
     public static final int YAMATO_ID = START_SEQ + 10;
+    public static final int DUMMY_ID = START_SEQ + 11;
+
     public static final int NOT_FOUND = START_SEQ + 1000;
 
     public static final Restaurant bavarius = new Restaurant(BAVARIUS_ID, "Bavarius");
@@ -26,6 +28,7 @@ public class RestaurantTestData {
     public static final Restaurant filadelphia = new Restaurant(FILADELPHIA_ID, "Filadelphia");
     public static final Restaurant roofToHeaven = new Restaurant(ROOFTOHEAVEN_ID, "Roof to Heaven");
     public static final Restaurant yamato = new Restaurant(YAMATO_ID, "Yamato");
+    public static final Restaurant dummyWithoutMenu = new Restaurant(DUMMY_ID, "Dummy");
 
     public static Restaurant getNew() {
         return new Restaurant(null, "New restaurant");
