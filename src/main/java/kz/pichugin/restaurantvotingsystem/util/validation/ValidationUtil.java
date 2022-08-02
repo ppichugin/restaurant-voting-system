@@ -6,6 +6,12 @@ import lombok.experimental.UtilityClass;
 import org.springframework.core.NestedExceptionUtils;
 import org.springframework.lang.NonNull;
 
+import java.time.LocalTime;
+
+import static kz.pichugin.restaurantvotingsystem.util.TimeUtil.TIME_FORMATTER;
+import static kz.pichugin.restaurantvotingsystem.util.TimeUtil.getLimit;
+import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCEPTION_VOTE;
+
 @UtilityClass
 public class ValidationUtil {
 
@@ -35,5 +41,11 @@ public class ValidationUtil {
     public static Throwable getRootCause(@NonNull Throwable t) {
         Throwable rootCause = NestedExceptionUtils.getRootCause(t);
         return rootCause != null ? rootCause : t;
+    }
+
+    public static void assureTimeLimit(LocalTime currentTime) {
+        if (currentTime.isAfter(getLimit())) {
+            throw new IllegalRequestDataException(EXCEPTION_VOTE + getLimit().format(TIME_FORMATTER) + ", but you try to vote at: " + currentTime.format(TIME_FORMATTER));
+        }
     }
 }

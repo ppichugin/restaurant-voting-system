@@ -48,8 +48,10 @@ public class Vote extends BaseEntity {
     @ToString.Exclude
     private Restaurant selectedRestaurant;
 
-    public Vote(Integer id, LocalDate voteDate) {
+    public Vote(Integer id, User user, Restaurant selectedRestaurant, LocalDate voteDate) {
         super(id);
+        this.user = user;
+        this.selectedRestaurant = selectedRestaurant;
         this.voteDate = voteDate;
     }
 }
