@@ -1,6 +1,7 @@
 package kz.pichugin.restaurantvotingsystem.web;
 
 import kz.pichugin.restaurantvotingsystem.error.AppException;
+import kz.pichugin.restaurantvotingsystem.error.RestaurantNotFoundException;
 import kz.pichugin.restaurantvotingsystem.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public static final String EXCEPTION_DUPLICATE_EMAIL = "User with this email already exists";
     public static final String EXCEPTION_DUPLICATE_DISH = "The dish in this restaurant already exists";
     public static final String EXCEPTION_DUPLICATE_RESTAURANT = "The restaurant already exists";
+    public static final String EXCEPTION_RESTAURANT_WITH_HISTORY = "Unable to delete.The restaurant has menu history";
+    public static final String EXCEPTION_VOTE = "Time limit to change the vote is: ";
 
     static {
         CONSTRAINS.put("uk_dish", EXCEPTION_DUPLICATE_DISH);
@@ -67,6 +70,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<?> persistException(WebRequest request, EntityNotFoundException ex) {
         log.error("EntityNotFoundException: {}", ex.getMessage());
+        return createResponseEntity(getDefaultBody(request, ErrorAttributeOptions.of(MESSAGE), null), HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    @ExceptionHandler(RestaurantNotFoundException.class)
+    public ResponseEntity<?> persistException(WebRequest request, RestaurantNotFoundException ex) {
+        log.error("RestaurantNotFoundException: {}", ex.getMessage());
         return createResponseEntity(getDefaultBody(request, ErrorAttributeOptions.of(MESSAGE), null), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 

@@ -27,9 +27,10 @@ VALUES ('Bavarius'),
        ('Mokito'),
        ('Filadelphia'),
        ('Roof to Heaven'),
-       ('Yamato');
+       ('Yamato'),
+       ('Dummy');
 
-INSERT INTO DISH (name, price, restaurant_id)
+INSERT INTO dish (name, price, restaurant_id)
 VALUES ('Coffee', 3.1, 100005),
        ('Croissant', 4.3, 100005),
        ('Spring salad', 7.9, 100005),
@@ -61,8 +62,11 @@ VALUES ('Sushi Yamato', 3.1, 100010, CURRENT_DATE - 1),
        ('Waffles with cream', 2.3, 100010, CURRENT_DATE - 1);
 
 INSERT INTO vote (user_id, restaurant_id, vote_date)
-VALUES (100000, 100010, CURRENT_DATE - 1),
-       (100001, 100005, CURRENT_DATE),
+VALUES (100000, 100010, CURRENT_DATE - 2),
+       (100000, 100007, CURRENT_DATE - 1),
+       (100000, 100007, CURRENT_DATE),
+       (100001, 100005, CURRENT_DATE - 2),
+       (100001, 100005, CURRENT_DATE - 1),
        (100002, 100005, CURRENT_DATE),
        (100003, 100009, CURRENT_DATE - 2),
        (100004, 100006, CURRENT_DATE);

@@ -2,6 +2,7 @@ package kz.pichugin.restaurantvotingsystem.web.restaurant;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kz.pichugin.restaurantvotingsystem.error.IllegalRequestDataException;
+import kz.pichugin.restaurantvotingsystem.error.RestaurantNotFoundException;
 import kz.pichugin.restaurantvotingsystem.model.Restaurant;
 import kz.pichugin.restaurantvotingsystem.repository.DishRepository;
 import kz.pichugin.restaurantvotingsystem.repository.RestaurantRepository;
@@ -28,8 +29,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.time.LocalDate;
 import java.util.List;
+
+import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCEPTION_RESTAURANT_WITH_HISTORY;
 
 @RestController
 @RequestMapping(value = AdminRestaurantController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -38,17 +40,15 @@ import java.util.List;
 @CacheConfig(cacheNames = "restaurants")
 @Tag(name = "Admin Restaurant Controller")
 public class AdminRestaurantController {
-
-    static final String REST_URL = "/api/admin/restaurants";
-
+    protected static final String REST_URL = "/api/admin/restaurants";
     private final RestaurantRepository restaurantRepository;
     private final DishRepository dishRepository;
 
-    @GetMapping("/{id}")
-    public Restaurant get(@PathVariable int id) {
-        log.info("get restaurant {}", id);
-        return restaurantRepository.findById(id).orElseThrow(
-                () -> new IllegalRequestDataException("Restaurant with id=" + id + " not found"));
+    @GetMapping("/{restaurantId}")
+    public Restaurant get(@PathVariable int restaurantId) {
+        log.info("get restaurant {}", restaurantId);
+        return restaurantRepository.findById(restaurantId).orElseThrow(
+                () -> new RestaurantNotFoundException(restaurantId));
     }
 
     @GetMapping
@@ -57,25 +57,10 @@ public class AdminRestaurantController {
         return restaurantRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
     }
 
-    @Transactional
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @CacheEvict(allEntries = true)
-    public void delete(@PathVariable int id) {
-        log.info("delete restaurant {}", id);
-        restaurantRepository.findById(id).orElseThrow(
-                () -> new IllegalRequestDataException("Restaurant with id=" + id + " not found"));
-        boolean isAnyFoodToday = dishRepository.getAll(id).stream().allMatch(dish -> dish.getAddDate().equals(LocalDate.now()));
-        if (isAnyFoodToday) {
-            throw new IllegalRequestDataException("Cannot delete a restaurant that has menu for today");
-        }
-        restaurantRepository.deleteExisted(id);
-    }
-
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @CacheEvict(allEntries = true)
-    public ResponseEntity<Restaurant> createWithLocation(@Valid @RequestBody Restaurant restaurant) {
-        log.info("create restaurant {}", restaurant);
+    public ResponseEntity<Restaurant> create(@Valid @RequestBody Restaurant restaurant) {
+        log.info("create restaurant {}", restaurant.toString());
         ValidationUtil.checkNew(restaurant);
         Restaurant created = restaurantRepository.save(restaurant);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
@@ -84,14 +69,31 @@ public class AdminRestaurantController {
         return ResponseEntity.created(uriOfNewResource).body(created);
     }
 
-    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{restaurantId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @CacheEvict(allEntries = true)
-    public void update(@Valid @RequestBody Restaurant restaurant, @PathVariable int id) {
-        log.info("update restaurant {}", id);
-        restaurantRepository.findById(id).orElseThrow(
-                () -> new IllegalRequestDataException("Restaurant with id=" + id + " not found"));
-        ValidationUtil.assureIdConsistent(restaurant, id);
+    public void update(@Valid @RequestBody Restaurant restaurant,
+                       @PathVariable int restaurantId) {
+        log.info("update restaurantId={}", restaurantId);
+        restaurantRepository.findById(restaurantId).orElseThrow(
+                () -> new RestaurantNotFoundException(restaurantId));
+        ValidationUtil.assureIdConsistent(restaurant, restaurantId);
         restaurantRepository.save(restaurant);
+    }
+
+    @Transactional
+    @DeleteMapping("/{restaurantId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CacheEvict(cacheNames = {"restaurants"}, allEntries = true)
+    public void delete(@PathVariable int restaurantId) {
+        log.info("delete restaurantId={}", restaurantId);
+        restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new RestaurantNotFoundException(restaurantId));
+        boolean isMenuEmpty = dishRepository.getAll(restaurantId).isEmpty();
+        if (!isMenuEmpty) {
+            throw new IllegalRequestDataException(EXCEPTION_RESTAURANT_WITH_HISTORY);
+        }
+        log.info("restaurantId={} deleted", restaurantId);
+        restaurantRepository.deleteExisted(restaurantId);
     }
 }

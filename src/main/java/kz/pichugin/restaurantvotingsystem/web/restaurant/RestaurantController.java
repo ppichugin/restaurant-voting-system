@@ -1,7 +1,7 @@
 package kz.pichugin.restaurantvotingsystem.web.restaurant;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kz.pichugin.restaurantvotingsystem.error.IllegalRequestDataException;
+import kz.pichugin.restaurantvotingsystem.error.RestaurantNotFoundException;
 import kz.pichugin.restaurantvotingsystem.model.Restaurant;
 import kz.pichugin.restaurantvotingsystem.repository.RestaurantRepository;
 import kz.pichugin.restaurantvotingsystem.to.RestaurantTo;
@@ -24,15 +24,13 @@ import java.util.List;
 @AllArgsConstructor
 @Tag(name = "Restaurant Controller")
 public class RestaurantController {
-
-    static final String REST_URL = "/api/restaurants";
-
+    protected static final String REST_URL = "/api/restaurants";
     private final RestaurantRepository repository;
 
     @GetMapping("/with-menu")
     @Cacheable("restaurants")
     public List<RestaurantTo> getAllWithMenuToday() {
-        log.info("get all restaurants with menu today");
+        log.info("get all restaurants with menu for today");
         List<Restaurant> allByDateWithMenu = repository.getAllByDateWithMenu(LocalDate.now());
         return RestaurantUtil.getRestaurantTos(allByDateWithMenu);
     }
@@ -41,6 +39,6 @@ public class RestaurantController {
     public RestaurantTo getByIdWithMenuToday(@PathVariable int id) {
         log.info("get restaurant {} with menu today", id);
         return repository.getByIdAndDateWithMenu(id, LocalDate.now()).map(RestaurantUtil::getRestaurantTo).orElseThrow(
-                () -> new IllegalRequestDataException("Restaurant with id=" + id + " not found"));
+                () -> new RestaurantNotFoundException(id));
     }
 }

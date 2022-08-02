@@ -1,5 +1,6 @@
 package kz.pichugin.restaurantvotingsystem.web.user;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import kz.pichugin.restaurantvotingsystem.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;
@@ -23,22 +24,9 @@ import static kz.pichugin.restaurantvotingsystem.util.validation.ValidationUtil.
 @RequestMapping(value = AdminUserController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 @CacheConfig(cacheNames = "users")
+@Tag(name = "Admin User Controller")
 public class AdminUserController extends AbstractUserController {
-
-    static final String REST_URL = "/api/admin/users";
-
-    @Override
-    @GetMapping("/{id}")
-    public ResponseEntity<User> get(@PathVariable int id) {
-        return super.get(id);
-    }
-
-    @Override
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable int id) {
-        super.delete(id);
-    }
+    protected static final String REST_URL = "/api/admin/users";
 
     @GetMapping
     public List<User> getAll() {
@@ -46,9 +34,21 @@ public class AdminUserController extends AbstractUserController {
         return repository.findAll(Sort.by(Sort.Direction.ASC, "name", "email"));
     }
 
+    @Override
+    @GetMapping("/{id}")
+    public ResponseEntity<User> get(@PathVariable int id) {
+        return super.get(id);
+    }
+
+    @GetMapping("/by-email")
+    public ResponseEntity<User> getByEmail(@RequestParam String email) {
+        log.info("getByEmail {}", email);
+        return ResponseEntity.of(repository.getByEmail(email));
+    }
+
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @CacheEvict(allEntries = true)
-    public ResponseEntity<User> createWithLocation(@Valid @RequestBody User user) {
+    public ResponseEntity<User> create(@Valid @RequestBody User user) {
         log.info("create {}", user);
         checkNew(user);
         User created = prepareAndSave(user);
@@ -67,10 +67,11 @@ public class AdminUserController extends AbstractUserController {
         prepareAndSave(user);
     }
 
-    @GetMapping("/by-email")
-    public ResponseEntity<User> getByEmail(@RequestParam String email) {
-        log.info("getByEmail {}", email);
-        return ResponseEntity.of(repository.getByEmail(email));
+    @Override
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable int id) {
+        super.delete(id);
     }
 
     @PatchMapping("/{id}")
