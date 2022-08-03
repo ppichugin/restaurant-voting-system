@@ -4,6 +4,7 @@ TopJava Graduation Project
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/f4d82a6c9735461c9486a4d76fbff683)](https://www.codacy.com/gh/ppichugin/restaurant-voting-system/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ppichugin/restaurant-voting-system&amp;utm_campaign=Badge_Grade)
 
 ---
+### Content
 
 <!-- TOC -->
 * [TopJava Graduation Project](#topjava-graduation-project)
@@ -45,6 +46,8 @@ The task is: **Build a voting system for deciding where to have lunch.**
   * If it is after 11:00 then it is too late, vote can't be changed
 * Each restaurant provides a new menu each day.
 
+[ ⬆️Go Up](#content)
+
 ---
 
 ### Stack
@@ -59,13 +62,15 @@ The task is: **Build a voting system for deciding where to have lunch.**
 | Cache            | Caffeine Cache           |
 | REST             | Open API v.3 / SwaggerUI |
 
+[ ⬆️Go Up](#content)
+
 ---
 
 ### Swagger UI link
 
-```console
 http://localhost:8080/swagger-ui/index.html
-```
+
+[ ⬆️Go Up](#content)
 
 ---
 
@@ -76,76 +81,141 @@ http://localhost:8080/swagger-ui/index.html
 | User:  | `user1@yandex.ru` | `password` |
 | Admin: | `admin@gmail.com` | `admin`    |
 
+[ ⬆️Go Up](#content)
+
 ---
 
-### Testing cURLs
+### Some testing cURLs
+
+---
 
 #### Restaurant Controller
 
 - Get all restaurants with menu:
+
 ```console
 curl -H "Content-Type: application/json" -v --user user1@yandex.ru:password http://localhost:8080/api/restaurants/with-menu
 ```
 
 - Get restaurant {id=100005} with menu:
+
 ```console
 curl -H "Content-Type: application/json" -v --user user1@yandex.ru:password http://localhost:8080/api/restaurants/100005/with-menu
 ```
 
+[ ⬆️Go Up](#content)
+
+---
+
 #### Admin Restaurant Controller
 
 - Get all restaurants by Admin:
+
 ```console
 curl -H "Content-Type: application/json" -v --user admin@gmail.com:admin http://localhost:8080/api/admin/restaurants
 ```
 
+- Create new restaurant by Admin:
+
+```console
+curl -H "Content-Type: application/json" -X POST http://localhost:8080/api/admin/restaurants -v --user admin@gmail.com:admin -d "{\"name\": \"New restaurant1\"}"
+```
+
+- Update existing restaurant by Admin:
+
+```console
+curl -H "Content-Type: application/json" -X PUT http://localhost:8080/api/admin/restaurants/100009 -v --user admin@gmail.com:admin -d "{\"name\": \"Updated Roof to Heaven\"}"
+```
+
+- Get existing restaurant by Admin:
+
+```console
+curl -X GET http://localhost:8080/api/admin/restaurants/100009 -v --user admin@gmail.com:admin -H "accept: application/json"
+```
+
+[ ⬆️Go Up](#content)
+
+---
+
 #### Admin Dish Controller
 
-- Get dishes from restaurant {} by Admin:
-```console
+- Get all dishes from restaurant {100005} by Admin:
 
+```console
+curl -X GET http://localhost:8080/api/admin/restaurants/100010/dishes -v --user admin@gmail.com:admin -H "accept: application/json"
 ```
+
+- Create new dish for restaurant {100005} by Admin:
+
+```console
+curl -X POST http://localhost:8080/api/admin/restaurants/100010/dishes -H "accept: application/json" -H "Content-Type: application/json" -d "{\"name\": \"Coffee Pastry\",\"price\": 12.12}" -v --user admin@gmail.com:admin
+```
+
+[ ⬆️Go Up](#content)
+
+---
 
 #### Admin User Controller
 
 - Get all users by Admin:
+
 ```console
 curl -H "Content-Type: application/json" -v --user admin@gmail.com:admin http://localhost:8080/api/admin/users
 ```
 
 - Get user {id=100000} by Admin:
+
 ```console
 curl -H "Content-Type: application/json" -v --user admin@gmail.com:admin http://localhost:8080/api/admin/users/100000
 ```
 
+[ ⬆️Go Up](#content)
+
+---
+
 #### Profile Controller
 
 - Get profile of the logged-in user:
+
 ```console
 curl -H "Content-Type: application/json" -v --user admin@gmail.com:admin -X GET http://localhost:8080/api/profile
 ```
 
+[ ⬆️Go Up](#content)
+
+---
+
 #### Vote Controller
 
 - Get all votes of authenticated user:
+
 ```console
 curl -H "Content-Type: application/json" -v --user user1@yandex.ru:password http://localhost:8080/api/profile/votes
 ```
 
 - Get votes for today of authenticated user:
+
 ```console
 curl -H "Content-Type: application/json" -v --user user1@yandex.ru:password http://localhost:8080/api/profile/votes/by-date
 ```
 ❗ _'/by-date' without provided parameter will filter votes for today by default_
 
 - Get votes for yesterday of authenticated user:
+
 ```console
 curl -H "Content-Type: application/json" -v --user user1@yandex.ru:password "http://localhost:8080/api/profile/votes/by-date?date=2022-08-03"
 ```
+
 ❗ _change parameter 'date=' to the yesterday value while testing_
 
 - Make new vote for restaurant {100006} by user who didn't vote today:
+
 ```console
 curl -X POST -H "Content-Type: application/json" -v --user user3@yandex.ru:password http://localhost:8080/api/profile/votes?restaurantId=100006
 ```
+
 ❗ _'user3@yandex.ru' didn't vote for restaurant {100006} by today yet_
+
+[ ⬆️Go Up](#content)
+
+---
