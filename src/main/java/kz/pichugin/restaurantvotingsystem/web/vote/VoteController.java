@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import kz.pichugin.restaurantvotingsystem.error.IllegalRequestDataException;
 import kz.pichugin.restaurantvotingsystem.error.RestaurantNotFoundException;
 import kz.pichugin.restaurantvotingsystem.model.Restaurant;
+import kz.pichugin.restaurantvotingsystem.model.User;
 import kz.pichugin.restaurantvotingsystem.model.Vote;
 import kz.pichugin.restaurantvotingsystem.repository.RestaurantRepository;
 import kz.pichugin.restaurantvotingsystem.repository.UserRepository;
@@ -67,44 +68,39 @@ public class VoteController {
 
     @Transactional
     @PostMapping
-    public ResponseEntity<VoteTo> create(@AuthenticationPrincipal AuthUser authUser, @RequestParam int restaurantId) {
-        final int userId = authUser.id();
-        Restaurant restaurant = getRestaurant(restaurantId);
-        Vote vote = getVote(userId, restaurant);
-        if (vote.isNew()) {
-            log.info("vote from userId={} for the restaurantId={}", userId, restaurantId);
-            Vote created = voteRepository.save(vote);
-            URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path(REST_URL).buildAndExpand().toUri();
-            return ResponseEntity.created(uriOfNewResource).body(VoteUtil.getVoteTo(created));
-        }
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    public ResponseEntity<VoteTo> create(@AuthenticationPrincipal AuthUser authUser,
+                                         @RequestParam int restaurantId) {
+        log.info("create vote from userId={} for the restaurantId={}", authUser.id(), restaurantId);
+        VoteTo voteTo = saveVote(authUser.getUser(), restaurantId);
+        URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path(REST_URL + "/{id}")
+                .buildAndExpand(voteTo.getRestaurantId()).toUri();
+        return ResponseEntity.created(uriOfNewResource).body(voteTo);
     }
 
     @Transactional
     @PutMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void update(@AuthenticationPrincipal AuthUser authUser, @RequestParam int restaurantId) {
-        final int userId = authUser.id();
-        Restaurant restaurant = getRestaurant(restaurantId);
-        Vote vote = getVote(userId, restaurant);
-        assureTimeLimit(LocalTime.now());
-        if (vote.getSelectedRestaurant().id() == restaurantId) {
-            log.info("Was a try to vote again by userId={} for the restaurantId={}", userId, restaurantId);
+        VoteTo voteTo = saveVote(authUser.getUser(), restaurantId);
+        if (voteTo.getRestaurantId() == restaurantId) {
+            log.info("Was a try to vote again on the same day by userId={} for the restaurantId={}", authUser.id(), restaurantId);
         } else {
-            log.info("userId={} changed the vote for the restaurantId={}", userId, restaurantId);
-            vote.setSelectedRestaurant(restaurant);
+            log.info("userId={} changed the vote for the restaurantId={}", authUser.id(), restaurantId);
         }
     }
 
-    private Vote getVote(int userId, Restaurant restaurant) {
-        LocalDate today = LocalDate.now();
-        return voteRepository.getByDate(userId, today)
-                .orElse(new Vote(today, userRepository.getById(userId), restaurant));
-    }
-
-    private Restaurant getRestaurant(int restaurantId) {
-        return restaurantRepository.findById(restaurantId)
+    private VoteTo saveVote(User user, int restaurantId) {
+        final Restaurant restaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new RestaurantNotFoundException(restaurantId));
+        final LocalDate today = LocalDate.now();
+        final Vote voteToday = voteRepository.getByDate(user.id(), today)
+                .orElse(new Vote(today, user, restaurant));
+        if (!voteToday.isNew()) {
+            assureTimeLimit(LocalTime.now());
+        }
+        final Vote created = voteRepository.save(voteToday);
+        created.setSelectedRestaurant(restaurant);
+        return VoteUtil.getVoteTo(created);
     }
 }
