@@ -25,7 +25,7 @@ spring:
       is-getter: none
 
   cache:
-    cache-names: restaurants
+    cache-names: restaurants, dishes
     caffeine.spec: maximumSize=1,expireAfterAccess=60s
 
   mvc:

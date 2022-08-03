@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,7 +33,7 @@ import static kz.pichugin.restaurantvotingsystem.util.validation.ValidationUtil.
 @RequestMapping(value = AdminDishController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 @AllArgsConstructor
-@CacheConfig(cacheNames = "restaurants")
+@CacheConfig(cacheNames = "dishes")
 @Tag(name = "Admin Dish Controller")
 public class AdminDishController {
     protected static final String REST_URL = "/api/admin/restaurants/{restaurantId}/dishes";
@@ -47,6 +48,7 @@ public class AdminDishController {
     }
 
     @GetMapping("/by-date")
+    @Cacheable("dishes")
     public List<DishTo> getAllByRestaurantAndDate(@PathVariable int restaurantId,
                                                   @RequestParam @Nullable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         log.info("get all dishes for restaurant {} by date {}", restaurantId, date);
@@ -55,6 +57,7 @@ public class AdminDishController {
     }
 
     @GetMapping
+    @Cacheable("dishes")
     public List<Dish> getAllByRestaurant(@PathVariable int restaurantId) {
         log.info("get all dishes for restaurant {}", restaurantId);
         return dishRepository.getAll(restaurantId);
