@@ -6,7 +6,6 @@ import kz.pichugin.restaurantvotingsystem.util.TimeUtil;
 import kz.pichugin.restaurantvotingsystem.util.VoteUtil;
 import kz.pichugin.restaurantvotingsystem.web.AbstractControllerTest;
 import kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler;
-import kz.pichugin.restaurantvotingsystem.web.user.UserTestData;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -74,13 +73,13 @@ class VoteControllerTest extends AbstractControllerTest {
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void create() throws Exception {
-        VoteTo newVote = VoteTestData.getNew();
+        VoteTo newVote = getNewVoteTo();
         perform(MockMvcRequestBuilders.post(REST_URL)
                 .param("restaurantId", String.valueOf(FILADELPHIA_ID)))
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
-        VoteTo created = voteRepository.getByDate(UserTestData.ADMIN_ID, LocalDate.now())
+        VoteTo created = voteRepository.getByDate(ADMIN_ID, LocalDate.now())
                 .map(VoteUtil::getVoteTo).orElse(null);
         VOTE_TO_MATCHER.assertMatch(created, newVote);
     }
@@ -107,7 +106,7 @@ class VoteControllerTest extends AbstractControllerTest {
                 .param("restaurantId", String.valueOf(CITYBREW_ID)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
-        VoteTo actual = voteRepository.getByDate(UserTestData.USER_ID, LocalDate.now())
+        VoteTo actual = voteRepository.getByDate(USER_ID, LocalDate.now())
                 .map(VoteUtil::getVoteTo).orElse(null);
         VOTE_TO_MATCHER.assertMatch(actual, expected);
     }
