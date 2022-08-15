@@ -1,25 +1,28 @@
 TopJava Graduation Project
-===
+==========================
 
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/f4d82a6c9735461c9486a4d76fbff683)](https://www.codacy.com/gh/ppichugin/restaurant-voting-system/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ppichugin/restaurant-voting-system&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/f4d82a6c9735461c9486a4d76fbff683)](https://www.codacy.com/gh/ppichugin/restaurant-voting-system/dashboard?utm_source=github.com&utm_medium=referral&utm_content=ppichugin/restaurant-voting-system&utm_campaign=Badge_Grade)
 
 ---
+
 ### Content
 
 <!-- TOC -->
+
 * [TopJava Graduation Project](#topjava-graduation-project)
   * [Restaurant Voting System](#restaurant-voting-system)
     * [Technical requirement](#technical-requirement)
     * [Stack](#stack)
     * [Swagger UI link](#swagger-ui-link)
     * [Credentials for testing purposes:](#credentials-for-testing-purposes)
-    * [Testing cURLs](#testing-curls)
+    * [Testing cURLs](#some-testing-curls)
       * [Restaurant Controller](#restaurant-controller)
       * [Admin Restaurant Controller](#admin-restaurant-controller)
       * [Admin Dish Controller](#admin-dish-controller)
       * [Admin User Controller](#admin-user-controller)
       * [Profile Controller](#profile-controller)
       * [Vote Controller](#vote-controller)
+
 <!-- TOC -->
 
 ---
@@ -181,6 +184,12 @@ curl -H "Content-Type: application/json" -v --user admin@gmail.com:admin http://
 curl -H "Content-Type: application/json" -v --user admin@gmail.com:admin -X GET http://localhost:8080/api/profile
 ```
 
+- Create new user:
+
+```console
+curl -X POST -d "{\"name\":\"newName\",\"email\":\"newemail2@ya.ru\",\"password\":\"newPassword\"}" http://localhost:8080/api/profile -H "Content-Type: application/json"
+```
+
 [ ⬆️Go Up](#content)
 
 ---
@@ -198,6 +207,7 @@ curl -H "Content-Type: application/json" -v --user user1@yandex.ru:password http
 ```console
 curl -H "Content-Type: application/json" -v --user user1@yandex.ru:password http://localhost:8080/api/profile/votes/by-date
 ```
+
 ❗ _'/by-date' without provided parameter will filter votes for today by default_
 
 - Get votes for yesterday of authenticated user:

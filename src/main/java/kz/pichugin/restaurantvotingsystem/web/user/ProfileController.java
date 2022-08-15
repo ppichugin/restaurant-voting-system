@@ -1,11 +1,16 @@
 package kz.pichugin.restaurantvotingsystem.web.user;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kz.pichugin.restaurantvotingsystem.model.User;
 import kz.pichugin.restaurantvotingsystem.to.UserTo;
 import kz.pichugin.restaurantvotingsystem.util.UserUtil;
 import kz.pichugin.restaurantvotingsystem.web.AuthUser;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
@@ -34,14 +39,22 @@ import static kz.pichugin.restaurantvotingsystem.util.validation.ValidationUtil.
 @Slf4j
 @CacheConfig(cacheNames = "users")
 @Tag(name = "Profile Controller")
+@ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "OK", content = @Content),
+        @ApiResponse(responseCode = "201", description = "Profile created", content = @Content),
+        @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content),
+        @ApiResponse(responseCode = "403", description = "Unauthorized access", content = @Content),
+        @ApiResponse(responseCode = "500", description = "Server error", content = @Content)})
 public class ProfileController extends AbstractUserController {
     protected static final String REST_URL = "/api/profile";
 
+    @Operation(summary = "Get authenticated user's profile")
     @GetMapping
-    public User get(@AuthenticationPrincipal AuthUser authUser) {
+    public User get(@NotNull @AuthenticationPrincipal AuthUser authUser) {
         return authUser.getUser();
     }
 
+    @Operation(summary = "Create user")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @CacheEvict(allEntries = true)
@@ -54,20 +67,22 @@ public class ProfileController extends AbstractUserController {
         return ResponseEntity.created(uriOfNewResource).body(created);
     }
 
+    @Operation(summary = "Update user")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
     @CacheEvict(allEntries = true)
     public void update(@RequestBody @Valid UserTo userTo,
-                       @AuthenticationPrincipal AuthUser authUser) {
+                       @NotNull @AuthenticationPrincipal AuthUser authUser) {
         assureIdConsistent(userTo, authUser.id());
         User user = authUser.getUser();
         prepareAndSave(UserUtil.updateFromTo(user, userTo));
     }
 
+    @Operation(summary = "Delete user")
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@AuthenticationPrincipal AuthUser authUser) {
+    public void delete(@NotNull @AuthenticationPrincipal AuthUser authUser) {
         super.delete(authUser.id());
     }
 }

@@ -1,5 +1,9 @@
 package kz.pichugin.restaurantvotingsystem.web.dish;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kz.pichugin.restaurantvotingsystem.error.IllegalRequestDataException;
 import kz.pichugin.restaurantvotingsystem.model.Dish;
@@ -35,18 +39,28 @@ import static kz.pichugin.restaurantvotingsystem.util.validation.ValidationUtil.
 @AllArgsConstructor
 @CacheConfig(cacheNames = "dishes")
 @Tag(name = "Admin Dish Controller")
+@ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "OK", content = @Content),
+        @ApiResponse(responseCode = "201", description = "Dish created", content = @Content),
+        @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content),
+        @ApiResponse(responseCode = "403", description = "Unauthorized access", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Dish not found", content = @Content),
+        @ApiResponse(responseCode = "500", description = "Server error", content = @Content)})
 public class AdminDishController {
     protected static final String REST_URL = "/api/admin/restaurants/{restaurantId}/dishes";
     private final RestaurantRepository restaurantRepository;
     private final DishRepository dishRepository;
 
+    @Operation(summary = "Get dish by id of restaurant")
     @GetMapping("/{dishId}")
+    @Cacheable("dishes")
     public Dish get(@PathVariable int dishId,
                     @PathVariable int restaurantId) {
         log.info("get dish {} for restaurant {}", dishId, restaurantId);
         return dishRepository.checkRelation(dishId, restaurantId);
     }
 
+    @Operation(summary = "Get all dishes of the restaurant by date")
     @GetMapping("/by-date")
     @Cacheable("dishes")
     public List<DishTo> getAllByRestaurantAndDate(@PathVariable int restaurantId,
@@ -56,6 +70,7 @@ public class AdminDishController {
         return DishUtil.getDishTos(allByDate);
     }
 
+    @Operation(summary = "Get all dishes of the restaurant")
     @GetMapping
     @Cacheable("dishes")
     public List<Dish> getAllByRestaurant(@PathVariable int restaurantId) {
@@ -63,6 +78,7 @@ public class AdminDishController {
         return dishRepository.getAll(restaurantId);
     }
 
+    @Operation(summary = "Create dish at the restaurant")
     @Transactional
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @CacheEvict(allEntries = true)
@@ -80,6 +96,7 @@ public class AdminDishController {
         return ResponseEntity.created(uriOfNewResource).body(created);
     }
 
+    @Operation(summary = "Update dish at restaurant")
     @Transactional
     @PutMapping(value = "/{dishId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -96,6 +113,7 @@ public class AdminDishController {
         dishRepository.save(dish);
     }
 
+    @Operation(summary = "Delete dish at restaurant")
     @DeleteMapping("/{dishId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @CacheEvict(allEntries = true)

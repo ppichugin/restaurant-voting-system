@@ -1,5 +1,9 @@
 package kz.pichugin.restaurantvotingsystem.web.user;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kz.pichugin.restaurantvotingsystem.model.User;
 import lombok.extern.slf4j.Slf4j;
@@ -25,27 +29,38 @@ import static kz.pichugin.restaurantvotingsystem.util.validation.ValidationUtil.
 @Slf4j
 @CacheConfig(cacheNames = "users")
 @Tag(name = "Admin User Controller")
+@ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "OK", content = @Content),
+        @ApiResponse(responseCode = "201", description = "User created", content = @Content),
+        @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content),
+        @ApiResponse(responseCode = "403", description = "Unauthorized access", content = @Content),
+        @ApiResponse(responseCode = "404", description = "User not found", content = @Content),
+        @ApiResponse(responseCode = "500", description = "Server error", content = @Content)})
 public class AdminUserController extends AbstractUserController {
     protected static final String REST_URL = "/api/admin/users";
 
+    @Operation(summary = "Get all users")
     @GetMapping
     public List<User> getAll() {
         log.info("getAll");
         return repository.findAll(Sort.by(Sort.Direction.ASC, "name", "email"));
     }
 
+    @Operation(summary = "Get user by id")
     @Override
     @GetMapping("/{id}")
     public ResponseEntity<User> get(@PathVariable int id) {
         return super.get(id);
     }
 
+    @Operation(summary = "Get user by email")
     @GetMapping("/by-email")
     public ResponseEntity<User> getByEmail(@RequestParam String email) {
         log.info("getByEmail {}", email);
         return ResponseEntity.of(repository.getByEmail(email));
     }
 
+    @Operation(summary = "Create new user")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @CacheEvict(allEntries = true)
     public ResponseEntity<User> create(@Valid @RequestBody User user) {
@@ -58,6 +73,7 @@ public class AdminUserController extends AbstractUserController {
         return ResponseEntity.created(uriOfNewResource).body(created);
     }
 
+    @Operation(summary = "Update user")
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @CacheEvict(allEntries = true)
@@ -67,6 +83,7 @@ public class AdminUserController extends AbstractUserController {
         prepareAndSave(user);
     }
 
+    @Operation(summary = "Delete user")
     @Override
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -74,6 +91,7 @@ public class AdminUserController extends AbstractUserController {
         super.delete(id);
     }
 
+    @Operation(summary = "Enable/Disable user")
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional

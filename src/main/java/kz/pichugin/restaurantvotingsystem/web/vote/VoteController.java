@@ -1,5 +1,9 @@
 package kz.pichugin.restaurantvotingsystem.web.vote;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kz.pichugin.restaurantvotingsystem.error.IllegalRequestDataException;
 import kz.pichugin.restaurantvotingsystem.error.RestaurantNotFoundException;
@@ -7,13 +11,13 @@ import kz.pichugin.restaurantvotingsystem.model.Restaurant;
 import kz.pichugin.restaurantvotingsystem.model.User;
 import kz.pichugin.restaurantvotingsystem.model.Vote;
 import kz.pichugin.restaurantvotingsystem.repository.RestaurantRepository;
-import kz.pichugin.restaurantvotingsystem.repository.UserRepository;
 import kz.pichugin.restaurantvotingsystem.repository.VoteRepository;
 import kz.pichugin.restaurantvotingsystem.to.VoteTo;
 import kz.pichugin.restaurantvotingsystem.util.VoteUtil;
 import kz.pichugin.restaurantvotingsystem.web.AuthUser;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -43,12 +47,19 @@ import static kz.pichugin.restaurantvotingsystem.util.validation.ValidationUtil.
 @Slf4j
 @AllArgsConstructor
 @Tag(name = "Vote Controller")
+@ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "OK", content = @Content),
+        @ApiResponse(responseCode = "201", description = "Vote created", content = @Content),
+        @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content),
+        @ApiResponse(responseCode = "403", description = "Unauthorized access", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Vote not found", content = @Content),
+        @ApiResponse(responseCode = "500", description = "Server error", content = @Content)})
 public class VoteController {
     protected static final String REST_URL = "/api/profile/votes";
     private final VoteRepository voteRepository;
-    private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
 
+    @Operation(summary = "Get all votes by date of logged in user")
     @GetMapping("/by-date")
     public VoteTo get(@AuthenticationPrincipal AuthUser authUser,
                       @RequestParam @Nullable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
@@ -59,6 +70,7 @@ public class VoteController {
                 .orElseThrow(() -> new IllegalRequestDataException("Vote for date=" + voteDate + " not found"));
     }
 
+    @Operation(summary = "Get all votes of logged in user")
     @GetMapping
     public List<VoteTo> getAll(@AuthenticationPrincipal AuthUser authUser) {
         log.info("get all votes for user {}", authUser.id());
@@ -66,6 +78,7 @@ public class VoteController {
         return getVoteTos(votes);
     }
 
+    @Operation(summary = "Write vote from logged in user")
     @Transactional
     @PostMapping
     public ResponseEntity<VoteTo> create(@AuthenticationPrincipal AuthUser authUser,
@@ -78,18 +91,20 @@ public class VoteController {
         return ResponseEntity.created(uriOfNewResource).body(voteTo);
     }
 
+    @Operation(summary = "Change vote from logged in user")
     @Transactional
     @PutMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void update(@AuthenticationPrincipal AuthUser authUser, @RequestParam int restaurantId) {
         VoteTo voteTo = saveVote(authUser.getUser(), restaurantId);
         if (voteTo.getRestaurantId() == restaurantId) {
-            log.info("Was a try to vote again on the same day by userId={} for the restaurantId={}", authUser.id(), restaurantId);
+            log.info("userId={} tried to vote for restaurantId={} again", authUser.id(), restaurantId);
         } else {
             log.info("userId={} changed the vote for the restaurantId={}", authUser.id(), restaurantId);
         }
     }
 
+    @NotNull
     private VoteTo saveVote(User user, int restaurantId) {
         final Restaurant restaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new RestaurantNotFoundException(restaurantId));
