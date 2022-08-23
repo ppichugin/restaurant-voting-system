@@ -9,9 +9,9 @@ import lombok.Value;
 @ToString(callSuper = true)
 public class DishTo extends NamedTo {
 
-    Double price;
+    int price;
 
-    public DishTo(Integer id, String name, Double price) {
+    public DishTo(Integer id, String name, int price) {
         super(id, name);
         this.price = price;
     }

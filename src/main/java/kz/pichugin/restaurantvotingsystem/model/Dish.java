@@ -15,6 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
 
 @Entity
@@ -27,8 +28,8 @@ import java.time.LocalDate;
 public class Dish extends NamedEntity {
 
     @Column(name = "price", nullable = false)
-    @NotNull
-    private Double price;
+    @PositiveOrZero
+    private int price;
 
     @Column(name = "serving_date", nullable = false, updatable = false, columnDefinition = "date default now()")
     @NotNull
@@ -47,17 +48,17 @@ public class Dish extends NamedEntity {
         this.restaurant = dish.getRestaurant();
     }
 
-    public Dish(String name, Double price) {
+    public Dish(String name, int price) {
         super(null, name);
         this.price = price;
     }
 
-    public Dish(Integer id, String name, Double price) {
+    public Dish(Integer id, String name, int price) {
         super(id, name);
         this.price = price;
     }
 
-    public Dish(Integer id, String name, Double price, Restaurant restaurant, LocalDate servingDate) {
+    public Dish(Integer id, String name, int price, Restaurant restaurant, LocalDate servingDate) {
         super(id, name);
         this.price = price;
         this.restaurant = restaurant;

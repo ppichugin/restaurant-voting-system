@@ -49,7 +49,7 @@ CREATE TABLE dish
     id            INTEGER DEFAULT NEXTVAL('global_seq') PRIMARY KEY,
     name          VARCHAR(100)          NOT NULL,
     serving_date  DATE    DEFAULT NOW() NOT NULL,
-    price         DOUBLE PRECISION      NOT NULL,
+    price         INTEGER               NOT NULL,
     restaurant_id INTEGER               NOT NULL,
     CONSTRAINT uk_dish UNIQUE (restaurant_id, serving_date, name),
     CONSTRAINT fk_dish FOREIGN KEY (restaurant_id) REFERENCES restaurant (id) ON DELETE CASCADE

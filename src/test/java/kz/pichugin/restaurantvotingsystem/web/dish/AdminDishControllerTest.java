@@ -104,7 +104,7 @@ class AdminDishControllerTest extends AbstractControllerTest {
 
     @Test
     void createInvalid() throws Exception {
-        Dish invalid = new Dish(null, null, 50.0);
+        Dish invalid = new Dish(null, 50);
         perform(MockMvcRequestBuilders.post(REST_URL, BAVARIUS_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(invalid)))
@@ -114,7 +114,7 @@ class AdminDishControllerTest extends AbstractControllerTest {
 
     @Test
     void updateInvalid() throws Exception {
-        Dish invalid = new Dish(DISH_START_ID + 5, null, 35.0);
+        Dish invalid = new Dish(DISH_START_ID + 5, null, 35);
         perform(MockMvcRequestBuilders.put(REST_URL + (DISH_START_ID + 5), BAVARIUS_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(invalid)))
@@ -125,7 +125,7 @@ class AdminDishControllerTest extends AbstractControllerTest {
     @Test
     @Transactional(propagation = Propagation.NEVER)
     void createDuplicate() throws Exception {
-        Dish duplicate = new Dish(null, bavariusDish5.getName(), 2.0);
+        Dish duplicate = new Dish(bavariusDish5.getName(), 2);
         perform(MockMvcRequestBuilders.post(REST_URL, BAVARIUS_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(duplicate)))
@@ -137,7 +137,7 @@ class AdminDishControllerTest extends AbstractControllerTest {
     @Test
     @Transactional(propagation = Propagation.NEVER)
     void updateDuplicate() throws Exception {
-        Dish invalidDuplicate = new Dish(DISH_START_ID + 18, roofToHavenDish2.getName(), 11.0);
+        Dish invalidDuplicate = new Dish(DISH_START_ID + 18, roofToHavenDish2.getName(), 11);
         perform(MockMvcRequestBuilders.put(REST_URL + (DISH_START_ID + 18), RestaurantTestData.ROOFTOHEAVEN_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(invalidDuplicate)))
