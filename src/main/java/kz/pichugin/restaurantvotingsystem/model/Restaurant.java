@@ -29,7 +29,7 @@ public class Restaurant extends NamedEntity {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "restaurant")
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-    @OrderBy("addDate DESC")
+    @OrderBy("servingDate DESC")
     @ToString.Exclude
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore

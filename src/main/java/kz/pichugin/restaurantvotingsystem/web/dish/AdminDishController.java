@@ -88,7 +88,7 @@ public class AdminDishController {
         checkNew(dishTo);
         Dish dish = DishUtil.getDish(dishTo);
         dish.setRestaurant(restaurantRepository.getById(restaurantId));
-        dish.setAddDate(LocalDate.now());
+        dish.setServingDate(LocalDate.now());
         Dish created = dishRepository.save(dish);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path(REST_URL + "/{id}")
@@ -109,7 +109,7 @@ public class AdminDishController {
         dishRepository.checkRelation(dishId, restaurantId);
         Dish dish = DishUtil.getDish(dishTo);
         dish.setRestaurant(restaurantRepository.getById(restaurantId));
-        dish.setAddDate(LocalDate.now());
+        dish.setServingDate(LocalDate.now());
         dishRepository.save(dish);
     }
 
@@ -121,7 +121,7 @@ public class AdminDishController {
                        @PathVariable int restaurantId) {
         log.info("delete dish {} for restaurant {}", dishId, restaurantId);
         Dish dish = dishRepository.checkRelation(dishId, restaurantId);
-        if (!dish.getAddDate().equals(LocalDate.now())) {
+        if (!dish.getServingDate().equals(LocalDate.now())) {
             throw new IllegalRequestDataException("Can not delete food for the past days");
         }
         dishRepository.deleteExisted(dishId);

@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "dish", uniqueConstraints = @UniqueConstraint(columnNames = {"restaurant_id", "add_date", "name"},
+@Table(name = "dish", uniqueConstraints = @UniqueConstraint(columnNames = {"restaurant_id", "serving_date", "name"},
         name = "uk_dish"))
 @Getter
 @Setter
@@ -30,9 +30,9 @@ public class Dish extends NamedEntity {
     @NotNull
     private Double price;
 
-    @Column(name = "add_date", nullable = false, updatable = false, columnDefinition = "date default now()")
+    @Column(name = "serving_date", nullable = false, updatable = false, columnDefinition = "date default now()")
     @NotNull
-    private LocalDate addDate = LocalDate.now();
+    private LocalDate servingDate = LocalDate.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id", nullable = false)
@@ -43,7 +43,7 @@ public class Dish extends NamedEntity {
     public Dish(Dish dish) {
         super(dish.getId(), dish.getName());
         this.price = dish.getPrice();
-        this.addDate = dish.getAddDate();
+        this.servingDate = dish.getServingDate();
         this.restaurant = dish.getRestaurant();
     }
 
@@ -57,10 +57,10 @@ public class Dish extends NamedEntity {
         this.price = price;
     }
 
-    public Dish(Integer id, String name, Double price, Restaurant restaurant, LocalDate addDate) {
+    public Dish(Integer id, String name, Double price, Restaurant restaurant, LocalDate servingDate) {
         super(id, name);
         this.price = price;
         this.restaurant = restaurant;
-        this.addDate = addDate;
+        this.servingDate = servingDate;
     }
 }

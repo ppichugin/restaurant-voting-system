@@ -56,7 +56,7 @@ VALUES ('Coffee', 3.1, 100005),
        ('Rothaus Tannen Zapfle', 5.2, 100010),
        ('Rothaus Zapfle', 5.5, 100010);
 
-INSERT INTO dish (name, price, restaurant_id, add_date)
+INSERT INTO dish (name, price, restaurant_id, serving_date)
 VALUES ('Sushi Yamato', 3.1, 100010, CURRENT_DATE - 1),
        ('Tea with ice', 5.0, 100010, CURRENT_DATE - 1),
        ('Waffles with cream', 2.3, 100010, CURRENT_DATE - 1);

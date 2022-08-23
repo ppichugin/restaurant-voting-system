@@ -12,10 +12,10 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public interface RestaurantRepository extends BaseRepository<Restaurant> {
     @EntityGraph(attributePaths = {"menu"}, type = EntityGraph.EntityGraphType.LOAD)
-    @Query("SELECT r FROM Restaurant r JOIN FETCH r.menu d WHERE d.addDate=:date ORDER BY r.name")
+    @Query("SELECT r FROM Restaurant r JOIN FETCH r.menu d WHERE d.servingDate=:date ORDER BY r.name")
     List<Restaurant> getAllByDateWithMenu(LocalDate date);
 
     @EntityGraph(attributePaths = {"menu"}, type = EntityGraph.EntityGraphType.LOAD)
-    @Query("SELECT r FROM Restaurant r JOIN FETCH r.menu d WHERE d.addDate=:date AND r.id=:id")
+    @Query("SELECT r FROM Restaurant r JOIN FETCH r.menu d WHERE d.servingDate=:date AND r.id=:id")
     Optional<Restaurant> getByIdAndDateWithMenu(int id, LocalDate date);
 }
