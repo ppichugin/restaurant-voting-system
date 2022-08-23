@@ -18,6 +18,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.SequenceGenerator;
 
 @MappedSuperclass
 //  https://stackoverflow.com/a/6084701/548473
@@ -29,7 +30,8 @@ import javax.persistence.MappedSuperclass;
 public abstract class BaseEntity implements Persistable<Integer>, HasId {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "seq", sequenceName = "global_seq", initialValue = 100000, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq")
     @Schema(accessMode = Schema.AccessMode.READ_ONLY) // https://stackoverflow.com/a/28025008/548473
     protected Integer id;
 
