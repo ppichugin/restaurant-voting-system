@@ -30,7 +30,7 @@ public class Dish extends NamedEntity {
     @NotNull
     private Double price;
 
-    @Column(name = "add_date", nullable = false, updatable = false, columnDefinition = "timestamp default now()")
+    @Column(name = "add_date", nullable = false, updatable = false, columnDefinition = "date default now()")
     @NotNull
     private LocalDate addDate = LocalDate.now();
 

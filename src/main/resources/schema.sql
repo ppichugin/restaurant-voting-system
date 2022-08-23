@@ -12,9 +12,9 @@ CREATE TABLE users
     id         INTEGER   DEFAULT NEXTVAL('global_seq') PRIMARY KEY,
     name       VARCHAR(100)            NOT NULL,
     email      VARCHAR(100)            NOT NULL,
+    enabled    BOOLEAN   DEFAULT TRUE  NOT NULL,
     password   VARCHAR(100)            NOT NULL,
     registered TIMESTAMP DEFAULT NOW() NOT NULL,
-    enabled    BOOLEAN   DEFAULT TRUE  NOT NULL,
     CONSTRAINT uk_user_email UNIQUE (email)
 );
 
@@ -29,16 +29,16 @@ CREATE TABLE user_roles
 CREATE TABLE restaurant
 (
     id   INTEGER DEFAULT NEXTVAL('global_seq') PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(100) NOT NULL,
     CONSTRAINT uk_restaurant UNIQUE (name)
 );
 
 CREATE TABLE vote
 (
-    id            INTEGER DEFAULT NEXTVAL('global_seq') PRIMARY KEY,
-    vote_date     TIMESTAMP NOT NULL,
-    user_id       INTEGER   NOT NULL,
-    restaurant_id INTEGER   NOT NULL,
+    id            INTEGER   DEFAULT NEXTVAL('global_seq') PRIMARY KEY,
+    vote_date     TIMESTAMP DEFAULT NOW() NOT NULL,
+    restaurant_id INTEGER                 NOT NULL,
+    user_id       INTEGER                 NOT NULL,
     CONSTRAINT uk_vote UNIQUE (user_id, vote_date),
     CONSTRAINT fk_vote_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT fk_vote_restaurant FOREIGN KEY (restaurant_id) REFERENCES restaurant (id) ON DELETE CASCADE
@@ -47,10 +47,10 @@ CREATE TABLE vote
 CREATE TABLE dish
 (
     id            INTEGER DEFAULT NEXTVAL('global_seq') PRIMARY KEY,
-    name          VARCHAR(255)          NOT NULL,
+    name          VARCHAR(100)          NOT NULL,
+    add_date      DATE    DEFAULT NOW() NOT NULL,
     price         DOUBLE PRECISION      NOT NULL,
     restaurant_id INTEGER               NOT NULL,
-    add_date      DATE    DEFAULT NOW() NOT NULL,
     CONSTRAINT uk_dish UNIQUE (name, restaurant_id, add_date),
     CONSTRAINT fk_dish FOREIGN KEY (restaurant_id) REFERENCES restaurant (id) ON DELETE CASCADE
 );
