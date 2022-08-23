@@ -8,21 +8,20 @@ TopJava Graduation Project
 ### Content
 
 <!-- TOC -->
-
 * [TopJava Graduation Project](#topjava-graduation-project)
+    * [Content](#content)
   * [Restaurant Voting System](#restaurant-voting-system)
     * [Technical requirement](#technical-requirement)
     * [Stack](#stack)
     * [Swagger UI link](#swagger-ui-link)
     * [Credentials for testing purposes:](#credentials-for-testing-purposes)
-    * [Testing cURLs](#some-testing-curls)
-      * [Restaurant Controller](#restaurant-controller)
-      * [Admin Restaurant Controller](#admin-restaurant-controller)
-      * [Admin Dish Controller](#admin-dish-controller)
-      * [Admin User Controller](#admin-user-controller)
-      * [Profile Controller](#profile-controller)
-      * [Vote Controller](#vote-controller)
-
+    * [Some testing cURLs](#some-testing-curls)
+      * [Admin API: Administration of restaurants](#admin-api-administration-of-restaurants)
+      * [Admin API: Administration of dishes](#admin-api-administration-of-dishes)
+      * [Admin API: Administration of users](#admin-api-administration-of-users)
+      * [User API: operations with restaurants](#user-api-operations-with-restaurants)
+      * [Profile operations](#profile-operations)
+      * [Voting operations](#voting-operations)
 <!-- TOC -->
 
 ---
@@ -92,25 +91,7 @@ http://localhost:8080/swagger-ui/index.html
 
 ---
 
-#### Restaurant Controller
-
-- Get all restaurants with menu:
-
-```console
-curl -H "Content-Type: application/json" -v --user user1@yandex.ru:password http://localhost:8080/api/restaurants/with-menu
-```
-
-- Get restaurant {id=100005} with menu:
-
-```console
-curl -H "Content-Type: application/json" -v --user user1@yandex.ru:password http://localhost:8080/api/restaurants/100005/with-menu
-```
-
-[ ⬆️Go Up](#content)
-
----
-
-#### Admin Restaurant Controller
+#### Admin API: Administration of restaurants
 
 - Get all restaurants by Admin:
 
@@ -140,7 +121,7 @@ curl -X GET http://localhost:8080/api/admin/restaurants/100009 -v --user admin@g
 
 ---
 
-#### Admin Dish Controller
+#### Admin API: Administration of dishes
 
 - Get all dishes from restaurant {100005} by Admin:
 
@@ -158,7 +139,7 @@ curl -X POST http://localhost:8080/api/admin/restaurants/100010/dishes -H "accep
 
 ---
 
-#### Admin User Controller
+#### Admin API: Administration of users
 
 - Get all users by Admin:
 
@@ -176,7 +157,25 @@ curl -H "Content-Type: application/json" -v --user admin@gmail.com:admin http://
 
 ---
 
-#### Profile Controller
+#### User API: operations with restaurants
+
+- Get all restaurants with menu:
+
+```console
+curl -H "Content-Type: application/json" -v --user user1@yandex.ru:password http://localhost:8080/api/restaurants/with-menu
+```
+
+- Get restaurant {id=100005} with menu:
+
+```console
+curl -H "Content-Type: application/json" -v --user user1@yandex.ru:password http://localhost:8080/api/restaurants/100005/with-menu
+```
+
+[ ⬆️Go Up](#content)
+
+---
+
+#### Profile operations
 
 - Get profile of the logged-in user:
 
@@ -194,7 +193,7 @@ curl -X POST -d "{\"name\":\"newName\",\"email\":\"newemail2@ya.ru\",\"password\
 
 ---
 
-#### Vote Controller
+#### Voting operations
 
 - Get all votes of authenticated user:
 
