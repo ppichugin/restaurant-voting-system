@@ -33,7 +33,7 @@ public class Restaurant extends NamedEntity {
     @ToString.Exclude
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
-    private List<Dish> menu;
+    private List<Dish> dishes;
 
     public Restaurant(Integer id, String name) {
         super(id, name);
@@ -41,6 +41,6 @@ public class Restaurant extends NamedEntity {
 
     public Restaurant(Restaurant rt) {
         super(rt.getId(), rt.getName());
-        menu = rt.getMenu();
+        dishes = rt.getDishes();
     }
 }

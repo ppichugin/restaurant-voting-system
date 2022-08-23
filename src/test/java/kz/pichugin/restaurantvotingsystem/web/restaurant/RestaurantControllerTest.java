@@ -24,7 +24,7 @@ class RestaurantControllerTest extends AbstractControllerTest {
 
     @Test
     void getByIdWithMenuToday() throws Exception {
-        citybrew.setMenu(citybrew_menu);
+        citybrew.setDishes(citybrew_menu);
         perform(MockMvcRequestBuilders.get(REST_URL + CITYBREW_ID + "/with-menu"))
                 .andExpect(status().isOk())
                 .andDo(print())
@@ -34,12 +34,12 @@ class RestaurantControllerTest extends AbstractControllerTest {
 
     @Test
     void getAllWithMenuToday() throws Exception {
-        bavarius.setMenu(bavarius_menu);
-        citybrew.setMenu(citybrew_menu);
-        mokito.setMenu(mokito_menu);
-        filadelphia.setMenu(filadelphia_menu);
-        roofToHeaven.setMenu(roofToHaven_menu);
-        yamato.setMenu(yamato_menu_today);
+        bavarius.setDishes(bavarius_menu);
+        citybrew.setDishes(citybrew_menu);
+        mokito.setDishes(mokito_menu);
+        filadelphia.setDishes(filadelphia_menu);
+        roofToHeaven.setDishes(roofToHaven_menu);
+        yamato.setDishes(yamato_menu_today);
         perform(MockMvcRequestBuilders.get(REST_URL + "with-menu"))
                 .andExpect(status().isOk())
                 .andDo(print())

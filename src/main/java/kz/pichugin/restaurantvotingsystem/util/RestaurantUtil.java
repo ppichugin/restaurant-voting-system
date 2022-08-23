@@ -17,7 +17,7 @@ import static kz.pichugin.restaurantvotingsystem.util.DishUtil.getDishTos;
 public final class RestaurantUtil {
 
     public static RestaurantTo getRestaurantTo(Restaurant rt) {
-        return new RestaurantTo(rt.getId(), rt.getName(), getDishTos(rt.getMenu()));
+        return new RestaurantTo(rt.getId(), rt.getName(), getDishTos(rt.getDishes()));
     }
 
     public static List<RestaurantTo> getRestaurantTos(Collection<Restaurant> restaurants) {
@@ -25,7 +25,7 @@ public final class RestaurantUtil {
         for (Restaurant restaurant : restaurants) {
             Integer id = restaurant.getId();
             String name = restaurant.getName();
-            List<Dish> menu = restaurant.getMenu();
+            List<Dish> menu = restaurant.getDishes();
             restaurantTos.add(new RestaurantTo(id, name, getDishTos(menu)));
         }
         restaurantTos.sort(Comparator.comparing(NamedTo::getName));

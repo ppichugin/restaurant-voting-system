@@ -11,10 +11,10 @@ import java.util.List;
 @ToString(callSuper = true)
 public class RestaurantTo extends NamedTo {
 
-    List<DishTo> menu;
+    List<DishTo> dishTos;
 
-    public RestaurantTo(Integer id, String name, List<DishTo> menu) {
+    public RestaurantTo(Integer id, String name, List<DishTo> dishTos) {
         super(id, name);
-        this.menu = menu;
+        this.dishTos = dishTos;
     }
 }
