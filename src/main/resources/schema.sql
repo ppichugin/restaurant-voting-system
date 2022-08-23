@@ -51,6 +51,6 @@ CREATE TABLE dish
     add_date      DATE    DEFAULT NOW() NOT NULL,
     price         DOUBLE PRECISION      NOT NULL,
     restaurant_id INTEGER               NOT NULL,
-    CONSTRAINT uk_dish UNIQUE (name, restaurant_id, add_date),
+    CONSTRAINT uk_dish UNIQUE (restaurant_id, add_date, name),
     CONSTRAINT fk_dish FOREIGN KEY (restaurant_id) REFERENCES restaurant (id) ON DELETE CASCADE
 );

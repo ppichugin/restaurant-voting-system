@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "dish", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "add_date", "restaurant_id"},
+@Table(name = "dish", uniqueConstraints = @UniqueConstraint(columnNames = {"restaurant_id", "add_date", "name"},
         name = "uk_dish"))
 @Getter
 @Setter
