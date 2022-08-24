@@ -2,6 +2,7 @@ package kz.pichugin.restaurantvotingsystem.web.restaurant;
 
 import kz.pichugin.restaurantvotingsystem.util.RestaurantUtil;
 import kz.pichugin.restaurantvotingsystem.web.AbstractControllerTest;
+import kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler;
 import kz.pichugin.restaurantvotingsystem.web.user.UserTestData;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -13,6 +14,7 @@ import java.util.List;
 
 import static kz.pichugin.restaurantvotingsystem.web.dish.DishTestData.*;
 import static kz.pichugin.restaurantvotingsystem.web.restaurant.RestaurantTestData.*;
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -51,7 +53,8 @@ class RestaurantControllerTest extends AbstractControllerTest {
     @Test
     void getNotFound() throws Exception {
         perform(MockMvcRequestBuilders.get(REST_URL + NOT_FOUND + "/with-menu"))
-                .andExpect(status().isUnprocessableEntity());
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(content().string(containsString(GlobalExceptionHandler.EXCEPTION_RESTAURANT_NOT_FOUND)));
     }
 
     @Test

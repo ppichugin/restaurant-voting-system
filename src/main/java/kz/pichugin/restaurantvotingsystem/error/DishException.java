@@ -5,8 +5,8 @@ import org.springframework.http.HttpStatus;
 
 import static org.springframework.boot.web.error.ErrorAttributeOptions.Include.MESSAGE;
 
-public class RestaurantNotFoundException extends AppException {
-    public RestaurantNotFoundException(int id) {
-        super(HttpStatus.UNPROCESSABLE_ENTITY, String.valueOf(id), ErrorAttributeOptions.of(MESSAGE));
+public class DishException extends AppException {
+    public DishException(String msg) {
+        super(HttpStatus.UNPROCESSABLE_ENTITY, msg, ErrorAttributeOptions.of(MESSAGE));
     }
 }

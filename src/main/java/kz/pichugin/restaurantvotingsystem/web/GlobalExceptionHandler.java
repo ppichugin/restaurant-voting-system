@@ -1,7 +1,9 @@
 package kz.pichugin.restaurantvotingsystem.web;
 
 import kz.pichugin.restaurantvotingsystem.error.AppException;
-import kz.pichugin.restaurantvotingsystem.error.RestaurantNotFoundException;
+import kz.pichugin.restaurantvotingsystem.error.DishException;
+import kz.pichugin.restaurantvotingsystem.error.RestaurantException;
+import kz.pichugin.restaurantvotingsystem.error.VoteException;
 import kz.pichugin.restaurantvotingsystem.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,9 +37,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     public static final String EXCEPTION_DUPLICATE_EMAIL = "User with this email already exists";
     public static final String EXCEPTION_DUPLICATE_DISH = "The dish in this restaurant already exists";
+    public static final String EXCEPTION_PAST_DAYS_DISH = "Can not delete food for the past days";
+    public static final String EXCEPTION_DISH_NOT_FOUND = "Dish not found";
     public static final String EXCEPTION_DUPLICATE_RESTAURANT = "The restaurant already exists";
     public static final String EXCEPTION_RESTAURANT_WITH_HISTORY = "Unable to delete.The restaurant has menu history";
-    public static final String EXCEPTION_VOTE = "Time limit to change the vote is: ";
+    public static final String EXCEPTION_RESTAURANT_NOT_FOUND = "RestaurantId not found";
+    public static final String EXCEPTION_TIME_LIMIT_VOTE = "Time limit to change the vote is: ";
+    public static final String EXCEPTION_VOTE_NOT_FOUND = "Vote not found";
 
     static {
         CONSTRAINS.put("uk_dish", EXCEPTION_DUPLICATE_DISH);
@@ -73,9 +79,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return createResponseEntity(getDefaultBody(request, ErrorAttributeOptions.of(MESSAGE), null), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
-    @ExceptionHandler(RestaurantNotFoundException.class)
-    public ResponseEntity<?> persistException(WebRequest request, RestaurantNotFoundException ex) {
-        log.error("RestaurantNotFoundException: {}", ex.getMessage());
+    @ExceptionHandler(RestaurantException.class)
+    public ResponseEntity<?> persistException(WebRequest request, RestaurantException ex) {
+        log.error("RestaurantException: {}", ex.getMessage());
+        return createResponseEntity(getDefaultBody(request, ErrorAttributeOptions.of(MESSAGE), null), HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    @ExceptionHandler(DishException.class)
+    public ResponseEntity<?> persistException(WebRequest request, DishException ex) {
+        log.error("DishException: {}", ex.getMessage());
+        return createResponseEntity(getDefaultBody(request, ErrorAttributeOptions.of(MESSAGE), null), HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    @ExceptionHandler(VoteException.class)
+    public ResponseEntity<?> persistException(WebRequest request, VoteException ex) {
+        log.error("VoteException: {}", ex.getMessage());
         return createResponseEntity(getDefaultBody(request, ErrorAttributeOptions.of(MESSAGE), null), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 

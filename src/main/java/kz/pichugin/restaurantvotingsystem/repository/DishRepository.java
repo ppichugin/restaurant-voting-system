@@ -1,6 +1,6 @@
 package kz.pichugin.restaurantvotingsystem.repository;
 
-import kz.pichugin.restaurantvotingsystem.error.IllegalRequestDataException;
+import kz.pichugin.restaurantvotingsystem.error.DishException;
 import kz.pichugin.restaurantvotingsystem.model.Dish;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
+import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCEPTION_DISH_NOT_FOUND;
 
 @Transactional(readOnly = true)
 public interface DishRepository extends BaseRepository<Dish> {
@@ -24,6 +26,6 @@ public interface DishRepository extends BaseRepository<Dish> {
     default Dish checkRelation(int id, int restaurantId) {
         return get(id, restaurantId)
                 .orElseThrow(() ->
-                        new IllegalRequestDataException("Dish with id=" + id + " is not related to Restaurant with id=" + restaurantId));
+                        new DishException(EXCEPTION_DISH_NOT_FOUND + ": DishId=" + id + " at RestaurantId=" + restaurantId));
     }
 }

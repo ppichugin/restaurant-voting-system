@@ -5,8 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kz.pichugin.restaurantvotingsystem.error.IllegalRequestDataException;
-import kz.pichugin.restaurantvotingsystem.error.RestaurantNotFoundException;
+import kz.pichugin.restaurantvotingsystem.error.RestaurantException;
 import kz.pichugin.restaurantvotingsystem.model.Restaurant;
 import kz.pichugin.restaurantvotingsystem.repository.DishRepository;
 import kz.pichugin.restaurantvotingsystem.repository.RestaurantRepository;
@@ -37,6 +36,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
+import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCEPTION_RESTAURANT_NOT_FOUND;
 import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCEPTION_RESTAURANT_WITH_HISTORY;
 
 @RestController
@@ -62,8 +62,7 @@ public class AdminRestaurantController {
     @Cacheable("restaurants")
     public Restaurant get(@PathVariable int restaurantId) {
         log.info("get restaurant {}", restaurantId);
-        return restaurantRepository.findById(restaurantId).orElseThrow(
-                () -> new RestaurantNotFoundException(restaurantId));
+        return getByIdOrThrow(restaurantId);
     }
 
     @Operation(summary = "Get all restaurants")
@@ -94,8 +93,7 @@ public class AdminRestaurantController {
     public void update(@Valid @RequestBody Restaurant restaurant,
                        @PathVariable int restaurantId) {
         log.info("update restaurantId={}", restaurantId);
-        restaurantRepository.findById(restaurantId).orElseThrow(
-                () -> new RestaurantNotFoundException(restaurantId));
+        getByIdOrThrow(restaurantId);
         ValidationUtil.assureIdConsistent(restaurant, restaurantId);
         restaurantRepository.save(restaurant);
     }
@@ -107,13 +105,17 @@ public class AdminRestaurantController {
     @CacheEvict(allEntries = true)
     public void delete(@PathVariable int restaurantId) {
         log.info("delete restaurantId={}", restaurantId);
-        restaurantRepository.findById(restaurantId)
-                .orElseThrow(() -> new RestaurantNotFoundException(restaurantId));
+        getByIdOrThrow(restaurantId);
         boolean isMenuEmpty = dishRepository.getAll(restaurantId).isEmpty();
         if (!isMenuEmpty) {
-            throw new IllegalRequestDataException(EXCEPTION_RESTAURANT_WITH_HISTORY);
+            throw new RestaurantException(EXCEPTION_RESTAURANT_WITH_HISTORY);
         }
         log.info("restaurantId={} deleted", restaurantId);
         restaurantRepository.deleteExisted(restaurantId);
+    }
+
+    private Restaurant getByIdOrThrow(int id) {
+        return restaurantRepository.findById(id)
+                .orElseThrow(() -> new RestaurantException(EXCEPTION_RESTAURANT_NOT_FOUND + id));
     }
 }

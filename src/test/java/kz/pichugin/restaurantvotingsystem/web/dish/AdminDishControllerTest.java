@@ -19,8 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
+import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCEPTION_DISH_NOT_FOUND;
 import static kz.pichugin.restaurantvotingsystem.web.dish.DishTestData.*;
 import static kz.pichugin.restaurantvotingsystem.web.restaurant.RestaurantTestData.BAVARIUS_ID;
+import static kz.pichugin.restaurantvotingsystem.web.restaurant.RestaurantTestData.NOT_FOUND;
 import static kz.pichugin.restaurantvotingsystem.web.user.UserTestData.START_SEQ;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -43,6 +45,14 @@ class AdminDishControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(DISH_MATCHER.contentJson(bavariusDish1));
+    }
+
+    @Test
+    void getNotFound() throws Exception {
+        perform(MockMvcRequestBuilders.get(REST_URL + NOT_FOUND, BAVARIUS_ID))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(content().string(containsString(EXCEPTION_DISH_NOT_FOUND)));
     }
 
     @Test
@@ -74,7 +84,8 @@ class AdminDishControllerTest extends AbstractControllerTest {
     @Test
     void deleteNotAllowedPastDays() throws Exception {
         perform(MockMvcRequestBuilders.delete(REST_URL + (DISH_START_ID + 24), RestaurantTestData.YAMATO_ID))
-                .andExpect(status().isUnprocessableEntity());
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(content().string(containsString(GlobalExceptionHandler.EXCEPTION_PAST_DAYS_DISH)));
     }
 
     @Test

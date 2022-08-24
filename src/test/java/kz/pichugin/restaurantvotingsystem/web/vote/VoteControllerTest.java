@@ -5,6 +5,7 @@ import kz.pichugin.restaurantvotingsystem.to.VoteTo;
 import kz.pichugin.restaurantvotingsystem.util.TimeUtil;
 import kz.pichugin.restaurantvotingsystem.util.VoteUtil;
 import kz.pichugin.restaurantvotingsystem.web.AbstractControllerTest;
+import kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -17,7 +18,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
 import static kz.pichugin.restaurantvotingsystem.util.TimeUtil.getLimit;
-import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCEPTION_VOTE;
+import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCEPTION_TIME_LIMIT_VOTE;
 import static kz.pichugin.restaurantvotingsystem.web.restaurant.RestaurantTestData.*;
 import static kz.pichugin.restaurantvotingsystem.web.user.UserTestData.*;
 import static kz.pichugin.restaurantvotingsystem.web.vote.VoteTestData.*;
@@ -50,6 +51,15 @@ class VoteControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(VOTE_TO_MATCHER.contentJson(VoteUtil.createVoteTo(vote1)));
+    }
+
+    @Test
+    void getByDateNotFound() throws Exception {
+        perform(MockMvcRequestBuilders.get(REST_URL + "/by-date")
+                .param("date", LocalDate.now().minusDays(3).toString()))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(content().string(containsString(GlobalExceptionHandler.EXCEPTION_VOTE_NOT_FOUND)));
     }
 
     @Test
@@ -119,6 +129,6 @@ class VoteControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(content().string(
-                        containsString(EXCEPTION_VOTE + TimeUtil.toString(getLimit()))));
+                        containsString(EXCEPTION_TIME_LIMIT_VOTE + TimeUtil.toString(getLimit()))));
     }
 }

@@ -2,6 +2,7 @@ package kz.pichugin.restaurantvotingsystem.util.validation;
 
 import kz.pichugin.restaurantvotingsystem.HasId;
 import kz.pichugin.restaurantvotingsystem.error.IllegalRequestDataException;
+import kz.pichugin.restaurantvotingsystem.error.VoteException;
 import lombok.experimental.UtilityClass;
 import org.springframework.core.NestedExceptionUtils;
 import org.springframework.lang.NonNull;
@@ -10,7 +11,7 @@ import java.time.LocalTime;
 
 import static kz.pichugin.restaurantvotingsystem.util.TimeUtil.TIME_FORMATTER;
 import static kz.pichugin.restaurantvotingsystem.util.TimeUtil.getLimit;
-import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCEPTION_VOTE;
+import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCEPTION_TIME_LIMIT_VOTE;
 
 @UtilityClass
 public class ValidationUtil {
@@ -45,7 +46,7 @@ public class ValidationUtil {
 
     public static void assureTimeLimit(LocalTime currentTime) {
         if (currentTime.isAfter(getLimit())) {
-            throw new IllegalRequestDataException(EXCEPTION_VOTE + getLimit().format(TIME_FORMATTER) + ", but you try to vote at: " + currentTime.format(TIME_FORMATTER));
+            throw new VoteException(EXCEPTION_TIME_LIMIT_VOTE + getLimit().format(TIME_FORMATTER) + ", but it was a try to vote at: " + currentTime.format(TIME_FORMATTER));
         }
     }
 }

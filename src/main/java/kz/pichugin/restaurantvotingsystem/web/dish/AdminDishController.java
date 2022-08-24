@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kz.pichugin.restaurantvotingsystem.error.IllegalRequestDataException;
+import kz.pichugin.restaurantvotingsystem.error.DishException;
 import kz.pichugin.restaurantvotingsystem.model.Dish;
 import kz.pichugin.restaurantvotingsystem.repository.DishRepository;
 import kz.pichugin.restaurantvotingsystem.repository.RestaurantRepository;
@@ -32,6 +32,7 @@ import java.util.List;
 
 import static kz.pichugin.restaurantvotingsystem.util.validation.ValidationUtil.assureIdConsistent;
 import static kz.pichugin.restaurantvotingsystem.util.validation.ValidationUtil.checkNew;
+import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCEPTION_PAST_DAYS_DISH;
 
 @RestController
 @RequestMapping(value = AdminDishController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -122,7 +123,7 @@ public class AdminDishController {
         log.info("delete dish {} for restaurant {}", dishId, restaurantId);
         Dish dish = dishRepository.checkRelation(dishId, restaurantId);
         if (!dish.getServingDate().equals(LocalDate.now())) {
-            throw new IllegalRequestDataException("Can not delete food for the past days");
+            throw new DishException(EXCEPTION_PAST_DAYS_DISH);
         }
         dishRepository.deleteExisted(dishId);
     }
