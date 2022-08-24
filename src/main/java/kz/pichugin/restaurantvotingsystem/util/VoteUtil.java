@@ -3,24 +3,26 @@ package kz.pichugin.restaurantvotingsystem.util;
 import kz.pichugin.restaurantvotingsystem.model.Vote;
 import kz.pichugin.restaurantvotingsystem.to.VoteTo;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class VoteUtil {
-    public static VoteTo getVoteTo(Vote vote) {
+    @NotNull
+    @Contract("_ -> new")
+    public static VoteTo createVoteTo(@NotNull Vote vote) {
         return new VoteTo(vote.getVoteDate(), vote.getSelectedRestaurant().id());
     }
 
-    public static List<VoteTo> getVoteTos(Collection<Vote> votes) {
-        List<VoteTo> voteTos = new ArrayList<>();
-        for (Vote vote : votes) {
-            voteTos.add(new VoteTo(vote.getVoteDate(), vote.getSelectedRestaurant().id()));
-        }
-        voteTos.sort(Comparator.comparing(VoteTo::getVoteDate).reversed());
-        return voteTos;
+    public static List<VoteTo> getVoteTos(@NotNull Collection<Vote> votes) {
+        return votes.stream()
+                .map(VoteUtil::createVoteTo)
+                .sorted(Comparator.comparing(VoteTo::getVoteDate).reversed())
+                .collect(Collectors.toList());
     }
 }

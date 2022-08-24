@@ -66,7 +66,8 @@ public class VoteController {
         int userId = authUser.id();
         LocalDate voteDate = (date == null) ? LocalDate.now() : date;
         log.info("get vote for user {} by date {}", userId, voteDate);
-        return voteRepository.getByDate(userId, voteDate).map(VoteUtil::getVoteTo)
+        return voteRepository.getByDate(userId, voteDate)
+                .map(VoteUtil::createVoteTo)
                 .orElseThrow(() -> new IllegalRequestDataException("Vote for date=" + voteDate + " not found"));
     }
 
@@ -116,6 +117,6 @@ public class VoteController {
         }
         final Vote created = voteRepository.save(voteToday);
         created.setSelectedRestaurant(restaurant);
-        return VoteUtil.getVoteTo(created);
+        return VoteUtil.createVoteTo(created);
     }
 }

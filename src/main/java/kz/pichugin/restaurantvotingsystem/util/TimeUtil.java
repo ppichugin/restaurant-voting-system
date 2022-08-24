@@ -1,7 +1,7 @@
 package kz.pichugin.restaurantvotingsystem.util;
 
 import lombok.experimental.UtilityClass;
-import org.springframework.context.annotation.Profile;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -15,17 +15,12 @@ public class TimeUtil {
         return timeLimit;
     }
 
-    @Profile("test")
     public static void setLimit(LocalTime timeLimit) {
         TimeUtil.timeLimit = timeLimit;
     }
 
-    public static String toString(LocalTime localTime) {
-        if (localTime == null) {
-            return "";
-        } else {
-            return localTime.format(TIME_FORMATTER);
-        }
+    @NotNull
+    public static String toString(@NotNull LocalTime localTime) {
+        return localTime.format(TIME_FORMATTER);
     }
-
 }

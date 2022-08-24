@@ -7,9 +7,9 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public final class DishUtil {
@@ -21,15 +21,15 @@ public final class DishUtil {
     }
 
     @NotNull
-    public static List<DishTo> getDishTos(@NotNull List<Dish> menu) {
-        List<DishTo> dishTos = new ArrayList<>();
-        for (Dish dish : menu) {
-            Integer id = dish.getId();
-            String name = dish.getName();
-            int price = dish.getPrice();
-            dishTos.add(new DishTo(id, name, price));
-        }
-        dishTos.sort(Comparator.comparingInt(BaseTo::getId));
-        return dishTos;
+    public static DishTo createDishTo(@NotNull Dish dish) {
+        return new DishTo(dish.getId(), dish.getName(), dish.getPrice());
+    }
+
+    @NotNull
+    public static List<DishTo> getDishTos(@NotNull List<Dish> dishes) {
+        return dishes.stream()
+                .map(DishUtil::createDishTo)
+                .sorted(Comparator.comparingInt(BaseTo::getId))
+                .collect(Collectors.toList());
     }
 }

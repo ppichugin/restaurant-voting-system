@@ -49,7 +49,8 @@ public class RestaurantController {
     @GetMapping("/{id}/with-menu")
     public RestaurantTo getByIdWithMenuToday(@PathVariable int id) {
         log.info("get restaurant {} with menu today", id);
-        return repository.getByIdAndDateWithMenu(id, LocalDate.now()).map(RestaurantUtil::getRestaurantTo).orElseThrow(
-                () -> new RestaurantNotFoundException(id));
+        return repository.getByIdAndDateWithMenu(id, LocalDate.now())
+                .map(RestaurantUtil::createRestaurantTo)
+                .orElseThrow(() -> new RestaurantNotFoundException(id));
     }
 }

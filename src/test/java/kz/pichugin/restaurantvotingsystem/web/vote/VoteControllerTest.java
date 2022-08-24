@@ -5,7 +5,6 @@ import kz.pichugin.restaurantvotingsystem.to.VoteTo;
 import kz.pichugin.restaurantvotingsystem.util.TimeUtil;
 import kz.pichugin.restaurantvotingsystem.util.VoteUtil;
 import kz.pichugin.restaurantvotingsystem.web.AbstractControllerTest;
-import kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -18,6 +17,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
 import static kz.pichugin.restaurantvotingsystem.util.TimeUtil.getLimit;
+import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCEPTION_VOTE;
 import static kz.pichugin.restaurantvotingsystem.web.restaurant.RestaurantTestData.*;
 import static kz.pichugin.restaurantvotingsystem.web.user.UserTestData.*;
 import static kz.pichugin.restaurantvotingsystem.web.vote.VoteTestData.*;
@@ -49,7 +49,7 @@ class VoteControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(VOTE_TO_MATCHER.contentJson(VoteUtil.getVoteTo(vote1)));
+                .andExpect(VOTE_TO_MATCHER.contentJson(VoteUtil.createVoteTo(vote1)));
     }
 
     @Test
@@ -60,7 +60,7 @@ class VoteControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(VOTE_TO_MATCHER.contentJson(VoteUtil.getVoteTo(vote4)));
+                .andExpect(VOTE_TO_MATCHER.contentJson(VoteUtil.createVoteTo(vote4)));
     }
 
     @Test
@@ -80,21 +80,21 @@ class VoteControllerTest extends AbstractControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
         VoteTo created = voteRepository.getByDate(ADMIN_ID, LocalDate.now())
-                .map(VoteUtil::getVoteTo).orElse(null);
+                .map(VoteUtil::createVoteTo).orElse(null);
         VOTE_TO_MATCHER.assertMatch(created, newVote);
     }
 
     @Test
     @WithUserDetails(value = USER_MAIL)
     void createNotNew() throws Exception {
-        VoteTo existingVote = VoteUtil.getVoteTo(vote3);
+        VoteTo existingVote = VoteUtil.createVoteTo(vote3);
         TimeUtil.setLimit(LocalTime.now().plus(1, ChronoUnit.MINUTES));
         perform(MockMvcRequestBuilders.put(REST_URL)
                 .param("restaurantId", String.valueOf(MOKITO_ID)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
         VoteTo created = voteRepository.getByDate(USER_ID, LocalDate.now())
-                .map(VoteUtil::getVoteTo).orElse(null);
+                .map(VoteUtil::createVoteTo).orElse(null);
         VOTE_TO_MATCHER.assertMatch(created, existingVote);
     }
 
@@ -107,7 +107,7 @@ class VoteControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isNoContent());
         VoteTo actual = voteRepository.getByDate(USER_ID, LocalDate.now())
-                .map(VoteUtil::getVoteTo).orElse(null);
+                .map(VoteUtil::createVoteTo).orElse(null);
         VOTE_TO_MATCHER.assertMatch(actual, expected);
     }
 
@@ -119,6 +119,6 @@ class VoteControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(content().string(
-                        containsString(GlobalExceptionHandler.EXCEPTION_VOTE + TimeUtil.toString(getLimit()))));
+                        containsString(EXCEPTION_VOTE + TimeUtil.toString(getLimit()))));
     }
 }
