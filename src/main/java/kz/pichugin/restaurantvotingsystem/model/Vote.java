@@ -29,7 +29,7 @@ import java.time.LocalDate;
 @ToString(callSuper = true)
 public class Vote extends BaseEntity {
 
-    @Column(name = "vote_date", nullable = false, updatable = false, columnDefinition = "timestamp default now()")
+    @Column(name = "vote_date", nullable = false, updatable = false, columnDefinition = "date default now()")
     @NotNull
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDate voteDate;

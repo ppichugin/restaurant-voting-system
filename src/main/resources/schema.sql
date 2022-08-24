@@ -35,10 +35,10 @@ CREATE TABLE restaurant
 
 CREATE TABLE vote
 (
-    id            INTEGER   DEFAULT NEXTVAL('global_seq') PRIMARY KEY,
-    vote_date     TIMESTAMP DEFAULT NOW() NOT NULL,
-    restaurant_id INTEGER                 NOT NULL,
-    user_id       INTEGER                 NOT NULL,
+    id            INTEGER DEFAULT NEXTVAL('global_seq') PRIMARY KEY,
+    vote_date     DATE    DEFAULT NOW() NOT NULL,
+    restaurant_id INTEGER               NOT NULL,
+    user_id       INTEGER               NOT NULL,
     CONSTRAINT uk_vote UNIQUE (user_id, vote_date),
     CONSTRAINT fk_vote_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT fk_vote_restaurant FOREIGN KEY (restaurant_id) REFERENCES restaurant (id) ON DELETE CASCADE
