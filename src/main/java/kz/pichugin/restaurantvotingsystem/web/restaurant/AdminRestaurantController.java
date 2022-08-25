@@ -59,7 +59,7 @@ public class AdminRestaurantController {
 
     @Operation(summary = "Get restaurant")
     @GetMapping("/{restaurantId}")
-    @Cacheable("restaurants")
+    @Cacheable
     public Restaurant get(@PathVariable int restaurantId) {
         log.info("get restaurant {}", restaurantId);
         return getByIdOrThrow(restaurantId);
@@ -67,7 +67,7 @@ public class AdminRestaurantController {
 
     @Operation(summary = "Get all restaurants")
     @GetMapping
-    @Cacheable("restaurants")
+    @Cacheable
     public List<Restaurant> getAll() {
         log.info("get all restaurants");
         return restaurantRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));

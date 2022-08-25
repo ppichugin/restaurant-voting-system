@@ -89,7 +89,7 @@ class VoteControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
-        VoteTo created = voteRepository.getByDate(ADMIN_ID, LocalDate.now())
+        VoteTo created = voteRepository.getByUserIdAndDate(ADMIN_ID, LocalDate.now())
                 .map(VoteUtil::createVoteTo).orElse(null);
         VOTE_TO_MATCHER.assertMatch(created, newVote);
     }
@@ -103,7 +103,7 @@ class VoteControllerTest extends AbstractControllerTest {
                 .param("restaurantId", String.valueOf(MOKITO_ID)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
-        VoteTo created = voteRepository.getByDate(USER_ID, LocalDate.now())
+        VoteTo created = voteRepository.getByUserIdAndDate(USER_ID, LocalDate.now())
                 .map(VoteUtil::createVoteTo).orElse(null);
         VOTE_TO_MATCHER.assertMatch(created, existingVote);
     }
@@ -116,7 +116,7 @@ class VoteControllerTest extends AbstractControllerTest {
                 .param("restaurantId", String.valueOf(CITYBREW_ID)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
-        VoteTo actual = voteRepository.getByDate(USER_ID, LocalDate.now())
+        VoteTo actual = voteRepository.getByUserIdAndDate(USER_ID, LocalDate.now())
                 .map(VoteUtil::createVoteTo).orElse(null);
         VOTE_TO_MATCHER.assertMatch(actual, expected);
     }

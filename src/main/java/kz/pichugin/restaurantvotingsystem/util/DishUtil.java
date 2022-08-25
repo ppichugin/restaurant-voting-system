@@ -1,8 +1,8 @@
 package kz.pichugin.restaurantvotingsystem.util;
 
 import kz.pichugin.restaurantvotingsystem.model.Dish;
-import kz.pichugin.restaurantvotingsystem.to.BaseTo;
 import kz.pichugin.restaurantvotingsystem.to.DishTo;
+import kz.pichugin.restaurantvotingsystem.to.NamedTo;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +29,7 @@ public final class DishUtil {
     public static List<DishTo> getDishTos(@NotNull List<Dish> dishes) {
         return dishes.stream()
                 .map(DishUtil::createDishTo)
-                .sorted(Comparator.comparingInt(BaseTo::getId))
+                .sorted(Comparator.comparing(NamedTo::getName))
                 .collect(Collectors.toList());
     }
 }

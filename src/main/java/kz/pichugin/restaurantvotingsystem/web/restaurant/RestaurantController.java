@@ -12,6 +12,7 @@ import kz.pichugin.restaurantvotingsystem.to.RestaurantTo;
 import kz.pichugin.restaurantvotingsystem.util.RestaurantUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +30,7 @@ import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCE
 @Slf4j
 @AllArgsConstructor
 @Tag(name = "Restaurant Controller")
+@CacheConfig(cacheNames = "restaurants")
 @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "OK", content = @Content),
         @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content),
@@ -49,6 +51,7 @@ public class RestaurantController {
 
     @Operation(summary = "Get restaurant by id with menu")
     @GetMapping("/{id}/with-menu")
+    @Cacheable({"restaurants", "dishes"})
     public RestaurantTo getByIdWithMenuToday(@PathVariable int id) {
         log.info("get restaurant {} with menu today", id);
         return repository.getByIdAndDateWithMenu(id, LocalDate.now())

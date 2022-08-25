@@ -7,7 +7,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +21,6 @@ public class VoteUtil {
     public static List<VoteTo> getVoteTos(@NotNull Collection<Vote> votes) {
         return votes.stream()
                 .map(VoteUtil::createVoteTo)
-                .sorted(Comparator.comparing(VoteTo::getVoteDate).reversed())
                 .collect(Collectors.toList());
     }
 }

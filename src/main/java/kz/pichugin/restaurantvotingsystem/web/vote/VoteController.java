@@ -68,7 +68,7 @@ public class VoteController {
         int userId = authUser.id();
         LocalDate voteDate = (date == null) ? LocalDate.now() : date;
         log.info("get vote for user {} by date {}", userId, voteDate);
-        return voteRepository.getByDate(userId, voteDate)
+        return voteRepository.getByUserIdAndDate(userId, voteDate)
                 .map(VoteUtil::createVoteTo)
                 .orElseThrow(() -> new VoteException(EXCEPTION_VOTE_NOT_FOUND + " for date=" + voteDate));
     }
@@ -112,7 +112,7 @@ public class VoteController {
         final Restaurant restaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new RestaurantException(EXCEPTION_RESTAURANT_NOT_FOUND + restaurantId));
         final LocalDate today = LocalDate.now();
-        final Vote voteToday = voteRepository.getByDate(user.id(), today)
+        final Vote voteToday = voteRepository.getByUserIdAndDate(user.id(), today)
                 .orElse(new Vote(today, user, restaurant));
         if (!voteToday.isNew()) {
             assureTimeLimit(LocalTime.now());

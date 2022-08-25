@@ -1,14 +1,12 @@
 package kz.pichugin.restaurantvotingsystem.util;
 
 import kz.pichugin.restaurantvotingsystem.model.Restaurant;
-import kz.pichugin.restaurantvotingsystem.to.NamedTo;
 import kz.pichugin.restaurantvotingsystem.to.RestaurantTo;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,7 +24,6 @@ public final class RestaurantUtil {
     public static List<RestaurantTo> getRestaurantTos(@NotNull Collection<Restaurant> restaurants) {
         return restaurants.stream()
                 .map(RestaurantUtil::createRestaurantTo)
-                .sorted(Comparator.comparing(NamedTo::getName))
                 .collect(Collectors.toList());
     }
 }
