@@ -1,6 +1,8 @@
 package kz.pichugin.restaurantvotingsystem.util;
 
+import kz.pichugin.restaurantvotingsystem.error.RestaurantException;
 import kz.pichugin.restaurantvotingsystem.model.Restaurant;
+import kz.pichugin.restaurantvotingsystem.repository.RestaurantRepository;
 import kz.pichugin.restaurantvotingsystem.to.RestaurantTo;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Contract;
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static kz.pichugin.restaurantvotingsystem.util.DishUtil.getDishTos;
+import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCEPTION_RESTAURANT_NOT_FOUND;
 
 @UtilityClass
 public final class RestaurantUtil {
@@ -25,5 +28,10 @@ public final class RestaurantUtil {
         return restaurants.stream()
                 .map(RestaurantUtil::createRestaurantTo)
                 .collect(Collectors.toList());
+    }
+
+    public static Restaurant getByIdOrThrow(@NotNull RestaurantRepository restaurantRepository, int id) {
+        return restaurantRepository.findById(id)
+                .orElseThrow(() -> new RestaurantException(EXCEPTION_RESTAURANT_NOT_FOUND + id));
     }
 }

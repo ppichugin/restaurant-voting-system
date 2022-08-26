@@ -26,7 +26,7 @@ spring:
 
   cache:
     cache-names: restaurants, dishes
-    caffeine.spec: maximumSize=100,expireAfterAccess=43200s
+    caffeine.spec: maximumSize=500,expireAfterAccess=600s
 
   mvc:
     format:

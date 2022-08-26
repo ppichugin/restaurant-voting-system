@@ -124,6 +124,17 @@ class AdminDishControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void createNegativePrice() throws Exception {
+        Dish invalid = new Dish("test dish", -50);
+        perform(MockMvcRequestBuilders.post(REST_URL, BAVARIUS_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(invalid)))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(content().string(containsString("must be greater than or equal to 0")));
+    }
+
+    @Test
     void updateInvalid() throws Exception {
         Dish invalid = new Dish(DISH_START_ID + 5, null, 35);
         perform(MockMvcRequestBuilders.put(REST_URL + (DISH_START_ID + 5), BAVARIUS_ID)

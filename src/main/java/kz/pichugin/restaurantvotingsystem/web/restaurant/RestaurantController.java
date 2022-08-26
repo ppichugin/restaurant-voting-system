@@ -42,7 +42,7 @@ public class RestaurantController {
 
     @Operation(summary = "Get all restaurants with menu")
     @GetMapping("/with-menu")
-    @Cacheable({"restaurants", "dishes"})
+    @Cacheable(value = "restaurants", key = "'getAllWithMenuToday'", unless = "#result==null")
     public List<RestaurantTo> getAllWithMenuToday() {
         log.info("get all restaurants with menu for today");
         List<Restaurant> allByDateWithMenu = repository.getAllByDateWithMenu(LocalDate.now());
@@ -51,7 +51,7 @@ public class RestaurantController {
 
     @Operation(summary = "Get restaurant by id with menu")
     @GetMapping("/{id}/with-menu")
-    @Cacheable({"restaurants", "dishes"})
+    @Cacheable(value = "restaurants", key = "#id", unless = "#result==null")
     public RestaurantTo getByIdWithMenuToday(@PathVariable int id) {
         log.info("get restaurant {} with menu today", id);
         return repository.getByIdAndDateWithMenu(id, LocalDate.now())

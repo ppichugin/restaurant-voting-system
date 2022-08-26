@@ -41,7 +41,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public static final String EXCEPTION_DISH_NOT_FOUND = "Dish not found";
     public static final String EXCEPTION_DUPLICATE_RESTAURANT = "The restaurant already exists";
     public static final String EXCEPTION_RESTAURANT_WITH_HISTORY = "Unable to delete.The restaurant has menu history";
-    public static final String EXCEPTION_RESTAURANT_NOT_FOUND = "RestaurantId not found";
+    public static final String EXCEPTION_RESTAURANT_NOT_FOUND = "RestaurantId not found: ";
     public static final String EXCEPTION_TIME_LIMIT_VOTE = "Time limit to change the vote is: ";
     public static final String EXCEPTION_VOTE_NOT_FOUND = "Vote not found";
 

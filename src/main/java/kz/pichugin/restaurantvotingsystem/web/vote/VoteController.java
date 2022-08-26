@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kz.pichugin.restaurantvotingsystem.error.RestaurantException;
 import kz.pichugin.restaurantvotingsystem.error.VoteException;
 import kz.pichugin.restaurantvotingsystem.model.Restaurant;
 import kz.pichugin.restaurantvotingsystem.model.User;
@@ -13,6 +12,7 @@ import kz.pichugin.restaurantvotingsystem.model.Vote;
 import kz.pichugin.restaurantvotingsystem.repository.RestaurantRepository;
 import kz.pichugin.restaurantvotingsystem.repository.VoteRepository;
 import kz.pichugin.restaurantvotingsystem.to.VoteTo;
+import kz.pichugin.restaurantvotingsystem.util.RestaurantUtil;
 import kz.pichugin.restaurantvotingsystem.util.VoteUtil;
 import kz.pichugin.restaurantvotingsystem.web.AuthUser;
 import lombok.AllArgsConstructor;
@@ -41,7 +41,6 @@ import java.util.List;
 
 import static kz.pichugin.restaurantvotingsystem.util.VoteUtil.getVoteTos;
 import static kz.pichugin.restaurantvotingsystem.util.validation.ValidationUtil.assureTimeLimit;
-import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCEPTION_RESTAURANT_NOT_FOUND;
 import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCEPTION_VOTE_NOT_FOUND;
 
 @RestController
@@ -109,8 +108,7 @@ public class VoteController {
 
     @NotNull
     private VoteTo saveVote(User user, int restaurantId) {
-        final Restaurant restaurant = restaurantRepository.findById(restaurantId)
-                .orElseThrow(() -> new RestaurantException(EXCEPTION_RESTAURANT_NOT_FOUND + restaurantId));
+        final Restaurant restaurant = RestaurantUtil.getByIdOrThrow(restaurantRepository, restaurantId);
         final LocalDate today = LocalDate.now();
         final Vote voteToday = voteRepository.getByUserIdAndDate(user.id(), today)
                 .orElse(new Vote(today, user, restaurant));

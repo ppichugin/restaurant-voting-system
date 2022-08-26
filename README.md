@@ -132,7 +132,19 @@ curl -X GET http://localhost:8080/api/admin/restaurants/100010/dishes -v --user 
 - Create new dish for restaurant {100005} by Admin:
 
 ```console
-curl -X POST http://localhost:8080/api/admin/restaurants/100010/dishes -H "accept: application/json" -H "Content-Type: application/json" -d "{\"name\": \"Coffee Pastry\",\"price\": 12.12}" -v --user admin@gmail.com:admin
+curl -X POST http://localhost:8080/api/admin/restaurants/100010/dishes -H "accept: application/json" -H "Content-Type: application/json" -d "{\"name\": \"Coffee Pastry\",\"price\": 12}" -v --user admin@gmail.com:admin
+```
+
+- Update dish {100038} for restaurant {100005} by Admin:
+
+```console
+curl -X PUT http://localhost:8080/api/admin/restaurants/100010/dishes/100038 -H "accept: application/json" -H "Content-Type: application/json" -d "{\"name\": \"Waffles with cream\",\"price\": 200}" -v --user admin@gmail.com:admin
+```
+
+- Delete dish {100033} for restaurant {100005} by Admin:
+
+```console
+curl -X DELETE http://localhost:8080/api/admin/restaurants/100010/dishes/100033 -v --user admin@gmail.com:admin
 ```
 
 [ ⬆️Go Up](#content)
