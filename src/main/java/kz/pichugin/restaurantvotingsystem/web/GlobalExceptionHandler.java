@@ -2,8 +2,11 @@ package kz.pichugin.restaurantvotingsystem.web;
 
 import kz.pichugin.restaurantvotingsystem.error.AppException;
 import kz.pichugin.restaurantvotingsystem.error.DishException;
+import kz.pichugin.restaurantvotingsystem.error.DishNotFoundException;
 import kz.pichugin.restaurantvotingsystem.error.RestaurantException;
+import kz.pichugin.restaurantvotingsystem.error.RestaurantNotFoundException;
 import kz.pichugin.restaurantvotingsystem.error.VoteException;
+import kz.pichugin.restaurantvotingsystem.error.VoteNotFoundException;
 import kz.pichugin.restaurantvotingsystem.util.validation.ValidationUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -85,16 +88,34 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return createResponseEntity(getDefaultBody(request, ErrorAttributeOptions.of(MESSAGE), null), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
+    @ExceptionHandler(RestaurantNotFoundException.class)
+    public ResponseEntity<?> persistException(WebRequest request, RestaurantNotFoundException ex) {
+        log.error("RestaurantNotFoundException: {}", ex.getMessage());
+        return createResponseEntity(getDefaultBody(request, ErrorAttributeOptions.of(MESSAGE), null), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(DishException.class)
     public ResponseEntity<?> persistException(WebRequest request, DishException ex) {
         log.error("DishException: {}", ex.getMessage());
         return createResponseEntity(getDefaultBody(request, ErrorAttributeOptions.of(MESSAGE), null), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
+    @ExceptionHandler(DishNotFoundException.class)
+    public ResponseEntity<?> persistException(WebRequest request, DishNotFoundException ex) {
+        log.error("DishNotFoundException: {}", ex.getMessage());
+        return createResponseEntity(getDefaultBody(request, ErrorAttributeOptions.of(MESSAGE), null), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(VoteException.class)
     public ResponseEntity<?> persistException(WebRequest request, VoteException ex) {
         log.error("VoteException: {}", ex.getMessage());
         return createResponseEntity(getDefaultBody(request, ErrorAttributeOptions.of(MESSAGE), null), HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    @ExceptionHandler(VoteNotFoundException.class)
+    public ResponseEntity<?> persistException(WebRequest request, VoteNotFoundException ex) {
+        log.error("VoteNotFoundException: {}", ex.getMessage());
+        return createResponseEntity(getDefaultBody(request, ErrorAttributeOptions.of(MESSAGE), null), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)

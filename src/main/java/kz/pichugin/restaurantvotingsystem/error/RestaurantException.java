@@ -9,4 +9,8 @@ public class RestaurantException extends AppException {
     public RestaurantException(String msg) {
         super(HttpStatus.UNPROCESSABLE_ENTITY, msg, ErrorAttributeOptions.of(MESSAGE));
     }
+
+    public RestaurantException(HttpStatus httpStatus, String msg) {
+        super(httpStatus, msg, ErrorAttributeOptions.of(MESSAGE));
+    }
 }

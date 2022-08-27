@@ -9,4 +9,8 @@ public class VoteException extends AppException {
     public VoteException(String msg) {
         super(HttpStatus.UNPROCESSABLE_ENTITY, msg, ErrorAttributeOptions.of(MESSAGE));
     }
+
+    public VoteException(HttpStatus httpStatus, String msg) {
+        super(httpStatus, msg, ErrorAttributeOptions.of(MESSAGE));
+    }
 }

@@ -9,4 +9,8 @@ public class DishException extends AppException {
     public DishException(String msg) {
         super(HttpStatus.UNPROCESSABLE_ENTITY, msg, ErrorAttributeOptions.of(MESSAGE));
     }
+
+    public DishException(HttpStatus httpStatus, String msg) {
+        super(httpStatus, msg, ErrorAttributeOptions.of(MESSAGE));
+    }
 }
