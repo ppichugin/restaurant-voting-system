@@ -48,7 +48,7 @@ class AdminRestaurantControllerTest extends AbstractControllerTest {
     void getNotFound() throws Exception {
         perform(MockMvcRequestBuilders.get(REST_URL + NOT_FOUND))
                 .andDo(print())
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString(GlobalExceptionHandler.EXCEPTION_RESTAURANT_NOT_FOUND)));
     }
 
@@ -94,7 +94,8 @@ class AdminRestaurantControllerTest extends AbstractControllerTest {
     @Test
     void deleteNotFound() throws Exception {
         perform(MockMvcRequestBuilders.delete(REST_URL + NOT_FOUND))
-                .andExpect(status().isUnprocessableEntity());
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(containsString(GlobalExceptionHandler.EXCEPTION_RESTAURANT_NOT_FOUND)));
     }
 
     @Test

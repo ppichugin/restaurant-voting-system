@@ -1,16 +1,19 @@
 package kz.pichugin.restaurantvotingsystem.web.vote;
 
+import kz.pichugin.restaurantvotingsystem.model.Vote;
 import kz.pichugin.restaurantvotingsystem.repository.VoteRepository;
 import kz.pichugin.restaurantvotingsystem.to.VoteTo;
 import kz.pichugin.restaurantvotingsystem.util.TimeUtil;
 import kz.pichugin.restaurantvotingsystem.util.VoteUtil;
 import kz.pichugin.restaurantvotingsystem.web.AbstractControllerTest;
 import kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler;
+import kz.pichugin.restaurantvotingsystem.web.restaurant.RestaurantTestData;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDate;
@@ -23,6 +26,8 @@ import static kz.pichugin.restaurantvotingsystem.web.restaurant.RestaurantTestDa
 import static kz.pichugin.restaurantvotingsystem.web.user.UserTestData.*;
 import static kz.pichugin.restaurantvotingsystem.web.vote.VoteTestData.*;
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -58,7 +63,25 @@ class VoteControllerTest extends AbstractControllerTest {
         perform(MockMvcRequestBuilders.get(REST_URL + "/by-date")
                 .param("date", LocalDate.now().minusDays(3).toString()))
                 .andDo(print())
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(containsString(GlobalExceptionHandler.EXCEPTION_VOTE_NOT_FOUND)));
+    }
+
+    @Test
+    void getById() throws Exception {
+        perform(MockMvcRequestBuilders.get(REST_URL + vote1.id()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(VOTE_TO_MATCHER.contentJson(VoteUtil.createVoteTo(vote1)));
+    }
+
+    @Test
+    void getByIdNotFound() throws Exception {
+        perform(MockMvcRequestBuilders.get(REST_URL + adminVote1.id()))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string(containsString(GlobalExceptionHandler.EXCEPTION_VOTE_NOT_FOUND)));
     }
 
@@ -84,51 +107,84 @@ class VoteControllerTest extends AbstractControllerTest {
     @WithUserDetails(value = ADMIN_MAIL)
     void create() throws Exception {
         VoteTo newVote = getNewVoteTo();
-        perform(MockMvcRequestBuilders.post(REST_URL)
+        ResultActions actions = perform(MockMvcRequestBuilders.post(REST_URL)
                 .param("restaurantId", String.valueOf(FILADELPHIA_ID)))
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
-        VoteTo created = voteRepository.getByUserIdAndDate(ADMIN_ID, LocalDate.now())
-                .map(VoteUtil::createVoteTo).orElse(null);
+        VoteTo created = VOTE_TO_MATCHER.readFromJson(actions);
+        int newId = created.id();
+        newVote.setId(newId);
         VOTE_TO_MATCHER.assertMatch(created, newVote);
     }
 
     @Test
     @WithUserDetails(value = USER_MAIL)
-    void createNotNew() throws Exception {
+    void createForSameRestaurantTwice() throws Exception {
         VoteTo existingVote = VoteUtil.createVoteTo(vote3);
         TimeUtil.setLimit(LocalTime.now().plus(1, ChronoUnit.MINUTES));
-        perform(MockMvcRequestBuilders.put(REST_URL)
+        perform(MockMvcRequestBuilders.post(REST_URL)
                 .param("restaurantId", String.valueOf(MOKITO_ID)))
                 .andDo(print())
-                .andExpect(status().isNoContent());
+                .andExpect(status().isUnprocessableEntity());
         VoteTo created = voteRepository.getByUserIdAndDate(USER_ID, LocalDate.now())
                 .map(VoteUtil::createVoteTo).orElse(null);
         VOTE_TO_MATCHER.assertMatch(created, existingVote);
     }
 
     @Test
-    void updateBeforeLimit() throws Exception {
-        VoteTo expected = getUpdatedBeforeLimit();
+    @WithUserDetails(value = USER_MAIL)
+    void createDifferentRestaurantSameDay() throws Exception {
+        VoteTo existingVote = VoteUtil.createVoteTo(vote3);
+        VoteTo newVote = VoteUtil.createVoteTo(new Vote(vote3.getId(), vote3.getUser(), citybrew, LocalDate.now()));
         TimeUtil.setLimit(LocalTime.now().plus(1, ChronoUnit.MINUTES));
-        perform(MockMvcRequestBuilders.put(REST_URL)
+        perform(MockMvcRequestBuilders.post(REST_URL)
                 .param("restaurantId", String.valueOf(CITYBREW_ID)))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity());
+        VoteTo foundForToday = voteRepository.getByUserIdAndDate(USER_ID, LocalDate.now())
+                .map(VoteUtil::createVoteTo).orElse(null);
+        assert foundForToday != null;
+        assertNotEquals(foundForToday.getRestaurantId(), newVote.getRestaurantId());
+        VOTE_TO_MATCHER.assertMatch(foundForToday, existingVote);
+    }
+
+    @Test
+    @WithUserDetails(value = USER_MAIL)
+    void createRestaurantNotFound() throws Exception {
+        TimeUtil.setLimit(LocalTime.now().plus(1, ChronoUnit.MINUTES));
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .param("restaurantId", String.valueOf(RestaurantTestData.NOT_FOUND)))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(containsString(GlobalExceptionHandler.EXCEPTION_RESTAURANT_NOT_FOUND)));
+    }
+
+    @Test
+    void updateBeforeDeadline() throws Exception {
+        TimeUtil.setLimit(LocalTime.now().plus(1, ChronoUnit.MINUTES));
+        perform(MockMvcRequestBuilders.patch(REST_URL)
+                .param("restaurantId", String.valueOf(YAMATO_ID)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
         VoteTo actual = voteRepository.getByUserIdAndDate(USER_ID, LocalDate.now())
                 .map(VoteUtil::createVoteTo).orElse(null);
-        VOTE_TO_MATCHER.assertMatch(actual, expected);
+        assert actual != null;
+        assertEquals(actual.getRestaurantId(), YAMATO_ID);
     }
 
     @Test
-    void updateAfterLimit() throws Exception {
+    void updateAfterDeadline() throws Exception {
         TimeUtil.setLimit(LocalTime.now().minus(1, ChronoUnit.MINUTES));
-        perform(MockMvcRequestBuilders.put(REST_URL)
+        perform(MockMvcRequestBuilders.patch(REST_URL)
                 .param("restaurantId", String.valueOf(CITYBREW_ID)))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(content().string(
                         containsString(EXCEPTION_TIME_LIMIT_VOTE + TimeUtil.toString(getLimit()))));
+        VoteTo actual = voteRepository.getByUserIdAndDate(USER_ID, LocalDate.now())
+                .map(VoteUtil::createVoteTo).orElse(null);
+        assert actual != null;
+        assertEquals(actual.getRestaurantId(), vote3.getSelectedRestaurant().getId());
     }
 }

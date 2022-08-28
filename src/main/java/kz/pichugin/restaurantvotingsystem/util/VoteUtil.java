@@ -15,7 +15,7 @@ public class VoteUtil {
     @NotNull
     @Contract("_ -> new")
     public static VoteTo createVoteTo(@NotNull Vote vote) {
-        return new VoteTo(vote.getVoteDate(), vote.getSelectedRestaurant().id());
+        return new VoteTo(vote.id(), vote.getVoteDate(), vote.getSelectedRestaurant().id());
     }
 
     public static List<VoteTo> getVoteTos(@NotNull Collection<Vote> votes) {

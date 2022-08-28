@@ -5,11 +5,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kz.pichugin.restaurantvotingsystem.error.VoteException;
+import kz.pichugin.restaurantvotingsystem.error.VoteNotFoundException;
 import kz.pichugin.restaurantvotingsystem.model.Restaurant;
-import kz.pichugin.restaurantvotingsystem.model.User;
 import kz.pichugin.restaurantvotingsystem.model.Vote;
-import kz.pichugin.restaurantvotingsystem.repository.RestaurantRepository;
 import kz.pichugin.restaurantvotingsystem.repository.VoteRepository;
 import kz.pichugin.restaurantvotingsystem.to.VoteTo;
 import kz.pichugin.restaurantvotingsystem.util.RestaurantUtil;
@@ -26,18 +24,22 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 import static kz.pichugin.restaurantvotingsystem.util.VoteUtil.getVoteTos;
 import static kz.pichugin.restaurantvotingsystem.util.validation.ValidationUtil.assureTimeLimit;
@@ -58,23 +60,36 @@ import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCE
 public class VoteController {
     protected static final String REST_URL = "/api/profile/votes";
     private final VoteRepository voteRepository;
-    private final RestaurantRepository restaurantRepository;
+
+    @PersistenceContext
+    private EntityManager em;
 
     @Operation(summary = "Get all votes by date of logged in user")
     @GetMapping("/by-date")
-    public VoteTo get(@AuthenticationPrincipal AuthUser authUser,
+    public VoteTo get(@NotNull @AuthenticationPrincipal AuthUser authUser,
                       @RequestParam @Nullable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         int userId = authUser.id();
         LocalDate voteDate = (date == null) ? LocalDate.now() : date;
         log.info("get vote for user {} by date {}", userId, voteDate);
         return voteRepository.getByUserIdAndDate(userId, voteDate)
                 .map(VoteUtil::createVoteTo)
-                .orElseThrow(() -> new VoteException(EXCEPTION_VOTE_NOT_FOUND + " for date=" + voteDate));
+                .orElseThrow(() -> new VoteNotFoundException(EXCEPTION_VOTE_NOT_FOUND + " for date=" + voteDate));
+    }
+
+    @Operation(summary = "Get vote by id of logged in user")
+    @GetMapping("/{id}")
+    public VoteTo getById(@NotNull @AuthenticationPrincipal AuthUser authUser, @PathVariable int id) {
+        int userId = authUser.id();
+        log.info("get voteId={} for userId={}", id, userId);
+        Vote proxy = em.find(Vote.class, id);
+        Optional<Vote> byIdAndUserId = proxy != null && proxy.getUser().id() == userId ? Optional.of(proxy) : Optional.empty();
+        return VoteUtil.createVoteTo(byIdAndUserId.orElseThrow(
+                () -> new VoteNotFoundException(EXCEPTION_VOTE_NOT_FOUND + ": voteId=" + id + " for userId=" + userId)));
     }
 
     @Operation(summary = "Get all votes of logged in user")
     @GetMapping
-    public List<VoteTo> getAll(@AuthenticationPrincipal AuthUser authUser) {
+    public List<VoteTo> getAll(@NotNull @AuthenticationPrincipal AuthUser authUser) {
         log.info("get all votes for user {}", authUser.id());
         List<Vote> votes = voteRepository.getAllByUser(authUser.id());
         return getVoteTos(votes);
@@ -83,40 +98,36 @@ public class VoteController {
     @Operation(summary = "Write vote from logged in user")
     @Transactional
     @PostMapping
-    public ResponseEntity<VoteTo> create(@AuthenticationPrincipal AuthUser authUser,
+    public ResponseEntity<VoteTo> create(@NotNull @AuthenticationPrincipal AuthUser authUser,
                                          @RequestParam int restaurantId) {
-        log.info("create vote from userId={} for the restaurantId={}", authUser.id(), restaurantId);
-        VoteTo voteTo = saveVote(authUser.getUser(), restaurantId);
+        log.info("Try to create vote from userId={} for restaurantId={}", authUser.id(), restaurantId);
+        Restaurant restaurant = RestaurantUtil.getProxyByIdOrThrow(em, restaurantId);
+        Vote newVote = new Vote(LocalDate.now(), authUser.getUser(), restaurant);
+        voteRepository.saveAndFlush(newVote);
+        VoteTo voteTo = VoteUtil.createVoteTo(newVote);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path(REST_URL + "/{id}")
-                .buildAndExpand(voteTo.getRestaurantId()).toUri();
+                .buildAndExpand(voteTo.getId()).toUri();
+        log.info("userId={} voted for restaurantId={}", authUser.id(), restaurantId);
         return ResponseEntity.created(uriOfNewResource).body(voteTo);
     }
 
     @Operation(summary = "Change vote from logged in user")
     @Transactional
-    @PutMapping
+    @PatchMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void update(@AuthenticationPrincipal AuthUser authUser, @RequestParam int restaurantId) {
-        VoteTo voteTo = saveVote(authUser.getUser(), restaurantId);
-        if (voteTo.getRestaurantId() == restaurantId) {
-            log.info("userId={} tried to vote for restaurantId={} again", authUser.id(), restaurantId);
+    public void update(@NotNull @AuthenticationPrincipal AuthUser authUser, @RequestParam int restaurantId) {
+        log.info("Try to update vote for userId={} to restaurantId={}", authUser.id(), restaurantId);
+        assureTimeLimit(LocalTime.now());
+        Restaurant restaurantProxy = em.find(Restaurant.class, restaurantId);
+        Vote voteForToday = voteRepository.getByUserIdAndDate(authUser.id(), LocalDate.now())
+                .orElseThrow(() -> new VoteNotFoundException(EXCEPTION_VOTE_NOT_FOUND));
+        if (voteForToday.getSelectedRestaurant().id() == restaurantId) {
+            log.info("userId={} tried to vote today for the same restaurantId={} again", authUser.id(), restaurantId);
         } else {
-            log.info("userId={} changed the vote for the restaurantId={}", authUser.id(), restaurantId);
+            log.info("userId={} changed the vote to the restaurantId={}", authUser.id(), restaurantId);
+            voteForToday.setSelectedRestaurant(restaurantProxy);
+            em.merge(voteForToday);
         }
-    }
-
-    @NotNull
-    private VoteTo saveVote(User user, int restaurantId) {
-        final Restaurant restaurant = RestaurantUtil.getByIdOrThrow(restaurantRepository, restaurantId);
-        final LocalDate today = LocalDate.now();
-        final Vote voteToday = voteRepository.getByUserIdAndDate(user.id(), today)
-                .orElse(new Vote(today, user, restaurant));
-        if (!voteToday.isNew()) {
-            assureTimeLimit(LocalTime.now());
-        }
-        final Vote created = voteRepository.save(voteToday);
-        created.setSelectedRestaurant(restaurant);
-        return VoteUtil.createVoteTo(created);
     }
 }

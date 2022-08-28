@@ -3,7 +3,6 @@ package kz.pichugin.restaurantvotingsystem.web;
 import kz.pichugin.restaurantvotingsystem.error.AppException;
 import kz.pichugin.restaurantvotingsystem.error.DishException;
 import kz.pichugin.restaurantvotingsystem.error.DishNotFoundException;
-import kz.pichugin.restaurantvotingsystem.error.RestaurantException;
 import kz.pichugin.restaurantvotingsystem.error.RestaurantNotFoundException;
 import kz.pichugin.restaurantvotingsystem.error.VoteException;
 import kz.pichugin.restaurantvotingsystem.error.VoteNotFoundException;
@@ -47,10 +46,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public static final String EXCEPTION_RESTAURANT_NOT_FOUND = "RestaurantId not found: ";
     public static final String EXCEPTION_TIME_LIMIT_VOTE = "Time limit to change the vote is: ";
     public static final String EXCEPTION_VOTE_NOT_FOUND = "Vote not found";
+    public static final String EXCEPTION_VOTE_VIOLATION = "Create vote twice for same day not allowed";
 
     static {
         CONSTRAINS.put("uk_dish", EXCEPTION_DUPLICATE_DISH);
         CONSTRAINS.put("uk_restaurant", EXCEPTION_DUPLICATE_RESTAURANT);
+        CONSTRAINS.put("fk_dish", EXCEPTION_RESTAURANT_WITH_HISTORY);
+        CONSTRAINS.put("uk_vote", EXCEPTION_VOTE_VIOLATION);
     }
 
     private final ErrorAttributes errorAttributes;
@@ -79,12 +81,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<?> persistException(WebRequest request, EntityNotFoundException ex) {
         log.error("EntityNotFoundException: {}", ex.getMessage());
-        return createResponseEntity(getDefaultBody(request, ErrorAttributeOptions.of(MESSAGE), null), HttpStatus.UNPROCESSABLE_ENTITY);
-    }
-
-    @ExceptionHandler(RestaurantException.class)
-    public ResponseEntity<?> persistException(WebRequest request, RestaurantException ex) {
-        log.error("RestaurantException: {}", ex.getMessage());
         return createResponseEntity(getDefaultBody(request, ErrorAttributeOptions.of(MESSAGE), null), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 

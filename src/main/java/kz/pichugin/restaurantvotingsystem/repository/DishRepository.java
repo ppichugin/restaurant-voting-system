@@ -20,8 +20,5 @@ public interface DishRepository extends BaseRepository<Dish> {
     @Query("SELECT d FROM Dish d WHERE d.restaurant.id=?1 AND d.servingDate=?2 ORDER BY d.name")
     List<Dish> getAllByDate(int restaurantId, LocalDate date);
 
-    @Query("SELECT d FROM Dish d WHERE d.id=?1")
-    Dish getById(int id);
-
     boolean existsByIdAndRestaurantId(int id, int restaurantId);
 }

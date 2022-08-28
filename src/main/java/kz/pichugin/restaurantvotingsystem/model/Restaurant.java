@@ -8,8 +8,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -31,7 +29,6 @@ public class Restaurant extends NamedEntity {
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @OrderBy("servingDate DESC")
     @ToString.Exclude
-    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private List<Dish> dishes;
 

@@ -1,5 +1,7 @@
 package kz.pichugin.restaurantvotingsystem.web.restaurant;
 
+import kz.pichugin.restaurantvotingsystem.model.NamedEntity;
+import kz.pichugin.restaurantvotingsystem.model.Restaurant;
 import kz.pichugin.restaurantvotingsystem.util.RestaurantUtil;
 import kz.pichugin.restaurantvotingsystem.web.AbstractControllerTest;
 import kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler;
@@ -10,6 +12,8 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static kz.pichugin.restaurantvotingsystem.web.dish.DishTestData.*;
@@ -23,6 +27,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class RestaurantControllerTest extends AbstractControllerTest {
 
     private static final String REST_URL = RestaurantController.REST_URL + '/';
+
+    @Test
+    void getAll() throws Exception {
+        List<Restaurant> restaurants = new ArrayList<>(
+                List.of(bavarius, citybrew, mokito, filadelphia, roofToHeaven, yamato, dummyWithoutMenu));
+        restaurants.sort(Comparator.comparing(NamedEntity::getName));
+        perform(MockMvcRequestBuilders.get(REST_URL))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(REST_MATCHER.contentJson(restaurants));
+    }
 
     @Test
     void getByIdWithMenuToday() throws Exception {
@@ -53,7 +69,7 @@ class RestaurantControllerTest extends AbstractControllerTest {
     @Test
     void getNotFound() throws Exception {
         perform(MockMvcRequestBuilders.get(REST_URL + NOT_FOUND + "/with-menu"))
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString(GlobalExceptionHandler.EXCEPTION_RESTAURANT_NOT_FOUND)));
     }
 

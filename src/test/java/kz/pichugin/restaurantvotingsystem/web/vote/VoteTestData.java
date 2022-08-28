@@ -26,12 +26,7 @@ public class VoteTestData {
     public static final List<Vote> user1Votes = List.of(vote3, vote2, vote1);
 
     public static VoteTo getNewVoteTo() {
-        return new VoteTo(LocalDate.now(), FILADELPHIA_ID);
-    }
-
-    public static VoteTo getUpdatedBeforeLimit() {
-        LocalDate voteDate = LocalDate.from(LocalDate.now().atTime(10, 30));
-        return new VoteTo(voteDate, CITYBREW_ID);
+        return new VoteTo(null, LocalDate.now(), FILADELPHIA_ID);
     }
 
     private static int incr() {
