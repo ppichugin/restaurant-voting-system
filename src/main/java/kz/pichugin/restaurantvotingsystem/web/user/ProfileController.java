@@ -51,7 +51,7 @@ public class ProfileController extends AbstractUserController {
         return authUser.getUser();
     }
 
-    @Operation(summary = "Create user")
+    @Operation(summary = "Register new user")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<User> register(@Valid @RequestBody UserTo userTo) {
@@ -63,7 +63,7 @@ public class ProfileController extends AbstractUserController {
         return ResponseEntity.created(uriOfNewResource).body(created);
     }
 
-    @Operation(summary = "Update user")
+    @Operation(summary = "Update profile")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
@@ -74,7 +74,7 @@ public class ProfileController extends AbstractUserController {
         prepareAndSave(UserUtil.updateFromTo(user, userTo));
     }
 
-    @Operation(summary = "Delete user")
+    @Operation(summary = "Delete profile")
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@NotNull @AuthenticationPrincipal AuthUser authUser) {

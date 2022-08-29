@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 
 import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCEPTION_DISH_NOT_FOUND;
-import static kz.pichugin.restaurantvotingsystem.web.dish.DishTestData.bavariusDish1;
+import static kz.pichugin.restaurantvotingsystem.web.dish.DishTestData.*;
 import static kz.pichugin.restaurantvotingsystem.web.restaurant.RestaurantTestData.*;
 import static kz.pichugin.restaurantvotingsystem.web.user.UserTestData.START_SEQ;
 import static org.hamcrest.Matchers.containsString;
@@ -40,11 +40,11 @@ class AdminDishControllerTest extends AbstractControllerTest {
 
     @Test
     void get() throws Exception {
-        perform(MockMvcRequestBuilders.get(REST_URL + DishTestData.DISH_START_ID, BAVARIUS_ID))
+        perform(MockMvcRequestBuilders.get(REST_URL + DISH_START_ID, BAVARIUS_ID))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(DishTestData.DISH_MATCHER.contentJson(bavariusDish1));
+                .andExpect(DISH_MATCHER.contentJson(bavariusDish1));
     }
 
     @Test
@@ -62,7 +62,7 @@ class AdminDishControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(DishTestData.DISH_TO_MATCHER.contentJson(DishUtil.getDishTos(DishTestData.bavarius_menu)));
+                .andExpect(DISH_TO_MATCHER.contentJson(DishUtil.getDishTos(bavarius_menu)));
     }
 
     @Test
@@ -71,12 +71,12 @@ class AdminDishControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(DishTestData.DISH_TO_MATCHER.contentJson(DishUtil.getDishTos(DishTestData.yamato_menu_all)));
+                .andExpect(DISH_TO_MATCHER.contentJson(DishUtil.getDishTos(yamato_menu_all)));
     }
 
     @Test
     void delete() throws Exception {
-        perform(MockMvcRequestBuilders.delete(REST_URL + DishTestData.DISH_START_ID, BAVARIUS_ID))
+        perform(MockMvcRequestBuilders.delete(REST_URL + DISH_START_ID, BAVARIUS_ID))
                 .andExpect(status().isNoContent());
         assertFalse(dishRepository.get(START_SEQ + 11, BAVARIUS_ID).isPresent());
     }
@@ -101,7 +101,7 @@ class AdminDishControllerTest extends AbstractControllerTest {
 
     @Test
     void deleteNotAllowedPastDays() throws Exception {
-        perform(MockMvcRequestBuilders.delete(REST_URL + (DishTestData.DISH_START_ID + 24), YAMATO_ID))
+        perform(MockMvcRequestBuilders.delete(REST_URL + (DISH_START_ID + 24), YAMATO_ID))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(content().string(containsString(GlobalExceptionHandler.EXCEPTION_PAST_DAYS_DISH)));
     }
@@ -114,11 +114,11 @@ class AdminDishControllerTest extends AbstractControllerTest {
                 .content(JsonUtil.writeValue(newDish)))
                 .andDo(print())
                 .andExpect(status().isCreated());
-        Dish created = DishTestData.DISH_MATCHER.readFromJson(action);
+        Dish created = DISH_MATCHER.readFromJson(action);
         int newId = created.id();
         newDish.setId(newId);
-        DishTestData.DISH_MATCHER.assertMatch(created, newDish);
-        DishTestData.DISH_MATCHER.assertMatch(dishRepository.get(newId, BAVARIUS_ID).orElse(null), newDish);
+        DISH_MATCHER.assertMatch(created, newDish);
+        DISH_MATCHER.assertMatch(dishRepository.get(newId, BAVARIUS_ID).orElse(null), newDish);
     }
 
     @Test
@@ -156,7 +156,7 @@ class AdminDishControllerTest extends AbstractControllerTest {
     @Test
     @Transactional(propagation = Propagation.NEVER)
     void createDuplicate() throws Exception {
-        Dish duplicate = new Dish(DishTestData.bavariusDish5.getName(), 2);
+        Dish duplicate = new Dish(bavariusDish5.getName(), 2);
         perform(MockMvcRequestBuilders.post(REST_URL, BAVARIUS_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(duplicate)))
@@ -168,17 +168,17 @@ class AdminDishControllerTest extends AbstractControllerTest {
     @Test
     void update() throws Exception {
         Dish updated = DishTestData.getUpdated();
-        perform(MockMvcRequestBuilders.put(REST_URL + DishTestData.DISH_START_ID, BAVARIUS_ID)
+        perform(MockMvcRequestBuilders.put(REST_URL + DISH_START_ID, BAVARIUS_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(updated)))
                 .andExpect(status().isNoContent());
-        DishTestData.DISH_MATCHER.assertMatch(dishRepository.get(DishTestData.DISH_START_ID, BAVARIUS_ID).orElse(null), updated);
+        DISH_MATCHER.assertMatch(dishRepository.get(DISH_START_ID, BAVARIUS_ID).orElse(null), updated);
     }
 
     @Test
     void updateInvalid() throws Exception {
-        Dish invalid = new Dish(DishTestData.DISH_START_ID + 5, null, 35);
-        perform(MockMvcRequestBuilders.put(REST_URL + (DishTestData.DISH_START_ID + 5), BAVARIUS_ID)
+        Dish invalid = new Dish(DISH_START_ID + 5, null, 35);
+        perform(MockMvcRequestBuilders.put(REST_URL + (DISH_START_ID + 5), BAVARIUS_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(invalid)))
                 .andDo(print())
@@ -210,8 +210,8 @@ class AdminDishControllerTest extends AbstractControllerTest {
     @Test
     @Transactional(propagation = Propagation.NEVER)
     void updateDuplicate() throws Exception {
-        Dish invalidDuplicate = new Dish(DishTestData.DISH_START_ID + 18, DishTestData.roofToHavenDish2.getName(), 11);
-        perform(MockMvcRequestBuilders.put(REST_URL + (DishTestData.DISH_START_ID + 18), RestaurantTestData.ROOFTOHEAVEN_ID)
+        Dish invalidDuplicate = new Dish(DISH_START_ID + 18, roofToHavenDish2.getName(), 11);
+        perform(MockMvcRequestBuilders.put(REST_URL + (DISH_START_ID + 18), RestaurantTestData.ROOFTOHEAVEN_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(invalidDuplicate)))
                 .andDo(print())

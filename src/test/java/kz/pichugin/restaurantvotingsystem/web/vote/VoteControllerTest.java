@@ -7,7 +7,6 @@ import kz.pichugin.restaurantvotingsystem.util.TimeUtil;
 import kz.pichugin.restaurantvotingsystem.util.VoteUtil;
 import kz.pichugin.restaurantvotingsystem.web.AbstractControllerTest;
 import kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler;
-import kz.pichugin.restaurantvotingsystem.web.restaurant.RestaurantTestData;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -21,7 +20,9 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
 import static kz.pichugin.restaurantvotingsystem.util.TimeUtil.getLimit;
+import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCEPTION_RESTAURANT_NOT_FOUND;
 import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCEPTION_TIME_LIMIT_VOTE;
+import static kz.pichugin.restaurantvotingsystem.web.restaurant.RestaurantTestData.NOT_FOUND;
 import static kz.pichugin.restaurantvotingsystem.web.restaurant.RestaurantTestData.*;
 import static kz.pichugin.restaurantvotingsystem.web.user.UserTestData.*;
 import static kz.pichugin.restaurantvotingsystem.web.vote.VoteTestData.*;
@@ -154,10 +155,10 @@ class VoteControllerTest extends AbstractControllerTest {
     void createRestaurantNotFound() throws Exception {
         TimeUtil.setLimit(LocalTime.now().plus(1, ChronoUnit.MINUTES));
         perform(MockMvcRequestBuilders.post(REST_URL)
-                .param("restaurantId", String.valueOf(RestaurantTestData.NOT_FOUND)))
+                .param("restaurantId", String.valueOf(NOT_FOUND)))
                 .andDo(print())
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString(GlobalExceptionHandler.EXCEPTION_RESTAURANT_NOT_FOUND)));
+                .andExpect(content().string(containsString(EXCEPTION_RESTAURANT_NOT_FOUND)));
     }
 
     @Test

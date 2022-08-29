@@ -39,7 +39,6 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 import static kz.pichugin.restaurantvotingsystem.util.VoteUtil.getVoteTos;
 import static kz.pichugin.restaurantvotingsystem.util.validation.ValidationUtil.assureTimeLimit;
@@ -66,8 +65,8 @@ public class VoteController {
 
     @Operation(summary = "Get all votes by date of logged in user")
     @GetMapping("/by-date")
-    public VoteTo get(@NotNull @AuthenticationPrincipal AuthUser authUser,
-                      @RequestParam @Nullable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+    public VoteTo getByDate(@NotNull @AuthenticationPrincipal AuthUser authUser,
+                            @RequestParam @Nullable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         int userId = authUser.id();
         LocalDate voteDate = (date == null) ? LocalDate.now() : date;
         log.info("get vote for user {} by date {}", userId, voteDate);
@@ -81,10 +80,12 @@ public class VoteController {
     public VoteTo getById(@NotNull @AuthenticationPrincipal AuthUser authUser, @PathVariable int id) {
         int userId = authUser.id();
         log.info("get voteId={} for userId={}", id, userId);
-        Vote proxy = em.find(Vote.class, id);
-        Optional<Vote> byIdAndUserId = proxy != null && proxy.getUser().id() == userId ? Optional.of(proxy) : Optional.empty();
-        return VoteUtil.createVoteTo(byIdAndUserId.orElseThrow(
-                () -> new VoteNotFoundException(EXCEPTION_VOTE_NOT_FOUND + ": voteId=" + id + " for userId=" + userId)));
+        if (em.find(Vote.class, id) == null) {
+            throw new VoteNotFoundException(EXCEPTION_VOTE_NOT_FOUND + ": voteId=" + id + " not exists.");
+        }
+        return voteRepository.getByIdAndUserId(id, userId)
+                .map(VoteUtil::createVoteTo)
+                .orElseThrow(() -> new VoteNotFoundException(EXCEPTION_VOTE_NOT_FOUND + " for userId=" + userId));
     }
 
     @Operation(summary = "Get all votes of logged in user")

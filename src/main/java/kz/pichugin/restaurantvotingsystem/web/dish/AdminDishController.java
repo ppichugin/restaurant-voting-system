@@ -47,7 +47,7 @@ import static kz.pichugin.restaurantvotingsystem.web.GlobalExceptionHandler.EXCE
 @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "OK", content = @Content),
         @ApiResponse(responseCode = "201", description = "Dish created", content = @Content),
-        @ApiResponse(responseCode = "204", description = "Dish deleted", content = @Content),
+        @ApiResponse(responseCode = "204", description = "Dish updated/deleted", content = @Content),
         @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content),
         @ApiResponse(responseCode = "403", description = "Unauthorized access", content = @Content),
         @ApiResponse(responseCode = "404", description = "Not found", content = @Content),

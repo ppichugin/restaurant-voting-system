@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kz.pichugin.restaurantvotingsystem.error.DishException;
 import kz.pichugin.restaurantvotingsystem.model.Restaurant;
 import kz.pichugin.restaurantvotingsystem.repository.RestaurantRepository;
 import kz.pichugin.restaurantvotingsystem.to.RestaurantTo;
@@ -14,14 +15,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.time.LocalDate;
 import java.util.List;
+
+import static kz.pichugin.restaurantvotingsystem.util.RestaurantUtil.RESTAURANT_NOT_FOUND_FUNCTION;
 
 @RestController
 @RequestMapping(value = RestaurantController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -38,6 +44,9 @@ import java.util.List;
 public class RestaurantController {
     protected static final String REST_URL = "/api/restaurants";
     private final RestaurantRepository repository;
+
+    @PersistenceContext
+    private EntityManager em;
 
     @Operation(summary = "Get all restaurants")
     @GetMapping
@@ -61,8 +70,11 @@ public class RestaurantController {
     @Cacheable(value = "restaurants", key = "#id", unless = "#result==null")
     public RestaurantTo getByIdWithMenuToday(@PathVariable int id) {
         log.info("get restaurant {} with menu today", id);
+        if (em.find(Restaurant.class, id) == null) {
+            throw RESTAURANT_NOT_FOUND_FUNCTION.apply(id);
+        }
         return repository.getByIdAndDateWithMenu(id, LocalDate.now())
                 .map(RestaurantUtil::createRestaurantTo)
-                .orElseThrow(() -> RestaurantUtil.RESTAURANT_NOT_FOUND_FUNCTION.apply(id));
+                .orElseThrow(() -> new DishException(HttpStatus.NO_CONTENT, "No menu for today at restaurantId: " + id));
     }
 }
