@@ -1,6 +1,9 @@
 language: java
-sudo: false
 jdk: openjdk17
+
 script:
-  - jdk_switcher use openjdk17
   - mvn clean verify
+
+cache:
+  directories:
+    - $home/.m2
