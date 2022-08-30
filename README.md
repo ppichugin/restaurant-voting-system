@@ -80,8 +80,11 @@ http://localhost:8080/swagger-ui/index.html
 
 |        | Login             | Password   |
 |--------|-------------------|------------|
-| User:  | `user1@yandex.ru` | `password` |
+| User1: | `user1@yandex.ru` | `password` |
 | Admin: | `admin@gmail.com` | `admin`    |
+| User2: | `user2@yandex.ru` | `password` |
+| User3: | `user3@yandex.ru` | `password` |
+| User4: | `user4@yandex.ru` | `password` |
 
 [ ⬆️Go Up](#content)
 
@@ -187,6 +190,12 @@ curl -H "Content-Type: application/json" -v --user user1@yandex.ru:password http
 
 ```console
 curl -H "Content-Type: application/json" -v --user user1@yandex.ru:password http://localhost:8080/api/restaurants/100005/with-menu
+```
+
+- Get restaurant {id=100011} without menu for today:
+
+```console
+curl -H "Content-Type: application/json" -v --user user1@yandex.ru:password http://localhost:8080/api/restaurants/100011/with-menu
 ```
 
 [ ⬆️Go Up](#content)
