@@ -171,13 +171,19 @@ curl -H "Content-Type: application/json" -v --user admin@gmail.com:admin http://
 
 #### User API: operations with restaurants
 
-- Get all restaurants with menu:
+- Get all restaurants with ID only:
+
+```console
+curl -H "Content-Type: application/json" -v --user user1@yandex.ru:password http://localhost:8080/api/restaurants/
+```
+
+- Get all restaurants with menu today:
 
 ```console
 curl -H "Content-Type: application/json" -v --user user1@yandex.ru:password http://localhost:8080/api/restaurants/with-menu
 ```
 
-- Get restaurant {id=100005} with menu:
+- Get restaurant {id=100005} with menu today:
 
 ```console
 curl -H "Content-Type: application/json" -v --user user1@yandex.ru:password http://localhost:8080/api/restaurants/100005/with-menu
