@@ -1,5 +1,5 @@
-TopJava Graduation Project
-==========================
+Graduation Project
+==================
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/f4d82a6c9735461c9486a4d76fbff683)](https://www.codacy.com/gh/ppichugin/restaurant-voting-system/dashboard?utm_source=github.com&utm_medium=referral&utm_content=ppichugin/restaurant-voting-system&utm_campaign=Badge_Grade)  [![Build Status](https://app.travis-ci.com/ppichugin/restaurant-voting-system.svg?branch=master)](https://app.travis-ci.com/ppichugin/restaurant-voting-system)
 
